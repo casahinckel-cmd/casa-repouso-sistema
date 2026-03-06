@@ -169,7 +169,7 @@ const usuario = localStorage.getItem("usuarioLogado");
 const nivel = localStorage.getItem("nivelAcesso");
 
 if (!usuario || !nivel) {
-  window.location.href = "entrada.html";
+  window.location.href = "index.html";
 } else {
 
   document.getElementById("usuarioNome").innerText = usuario;
@@ -195,10 +195,11 @@ function irCadastro() {
 
 function sair() {
   localStorage.clear();
-  window.location.href = "entrada.html";
+  window.location.href = "index.html";
 }
 
 </script>
 
 </body>
+
 </html>
