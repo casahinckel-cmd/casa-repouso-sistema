@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Prancheta - Histórico</title>
+
+<style>
+:root{
+  --marrom-escuro:#4E342E;
+  --marrom-medio:#6D4C41;
+  --marrom-escuro2:#5D4037;
+  --bege:#EFEBE9;
+
+  --card:#ffffff;
+  --borda:#e4dbd6;
+  --texto:#221b18;
+  --muted:#6a5d59;
+  --linha:#e9e1dc;
+
+  --sidebarW:280px;
+  --leftWidth:520px;
+  --colW:150px;
+
+  --dateH:44px;
+  --respH:42px;
+  --dnH:34px;
+
+  --rowMinH:46px;
+  --titleH:40px;
+
+  --headerMainH:160px;
+  --tableHeadH:calc(var(--dateH) + var(--respH) + var(--dnH));
+  --stickyTop:var(--headerMainH);
+}
+
+*{ box-sizing:border-box; }
+
+html, body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+}
+
+body{
+  font-family:Arial, sans-serif;
+  font-size:13px;
+  line-height:1.25;
+  background:var(--bege);
+  color:var(--texto);
+  overflow:auto;
+}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:var(--sidebarW);
+  height:100vh;
+  background:var(--marrom-escuro);
+  color:#fff;
+  padding:20px;
+  overflow-y:auto;
+  z-index:99999;
+  box-shadow:2px 0 10px rgba(0,0,0,.12);
+}
+.sidebar h2{
+  margin:0 0 10px;
+  font-size:18px;
+}
+
+.top-buttons{ margin-top:16px; }
+.top-buttons button{
+  width:100%;
+  margin-bottom:10px;
+  background:#3E2723;
+  border:none;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+.top-buttons button:hover{ background:#2d1c19; }
+
+/* MAIN */
+.main{
+  margin-left:var(--sidebarW);
+  min-width:max-content;
+  padding:0;
+  position:relative;
+  z-index:1;
+}
+
+/* CABEÇALHO PRINCIPAL */
+.header-fixo{
+  position:fixed;
+  top:0;
+  left:var(--sidebarW);
+  right:0;
+  z-index:6500;
+  background:var(--bege);
+  padding:12px 18px 0 18px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+.header-card{
+  background:var(--card);
+  border-radius:0 0 14px 14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+  border:1px solid rgba(0,0,0,.06);
+  padding:12px;
+}
+.header-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+}
+.header-ident .nome{
+  font-size:18px;
+  font-weight:800;
+  margin:0 0 4px;
+  color:#2a1a17;
+}
+.header-ident .sub{
+  margin:0;
+  color:var(--muted);
+  font-size:12.5px;
+}
+.badges{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:#f6f1ef;
+  border:1px solid #eadfda;
+  color:#3b2a26;
+  font-size:12.5px;
+}
+.badge b{ font-weight:800; }
+
+.btn-print{
+  padding:9px 12px;
+  border-radius:999px;
+  border:1px solid #eadfda;
+  background:#fff;
+  cursor:pointer;
+  font-weight:900;
+  color:#3b2a26;
+}
+.btn-print:hover{ background:#f6f1ef; }
+
+.controls{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:10px 12px;
+}
+.ctrl{
+  background:#faf7f6;
+  border:1px solid #eee;
+  border-radius:12px;
+  padding:10px;
+}
+.ctrl label{
+  display:block;
+  font-size:12px;
+  color:#5a5a5a;
+  font-weight:800;
+  margin-bottom:6px;
+}
+.ctrl select, .ctrl input{
+  width:100%;
+  padding:9px 10px;
+  border-radius:10px;
+  border:1px solid #d8d8d8;
+  background:#fff;
+  font-size:13px;
+  margin:0;
+}
+
+.header-space{
+  height:var(--headerMainH);
+}
+
+/* ÁREA */
+.content-area{
+  padding:0 18px 18px 18px;
+  position:relative;
+  z-index:1;
+}
+
+.wrap{
+  background:#fff;
+  border:1px solid var(--borda);
+  border-radius:0 0 14px 14px;
+  box-shadow:0 6px 14px rgba(0,0,0,.06);
+  overflow:visible;
+  margin-top:0;
+  position:relative;
+  z-index:1;
+}
+
+/* TABELA */
+.sheet-viewport{
+  overflow:visible;
+  max-height:none;
+  background:#fff;
+  position:relative;
+  z-index:1;
+}
+
+.sheet{
+  display:grid;
+  grid-template-columns:var(--leftWidth) max-content;
+  min-width:max-content;
+  width:max-content;
+  position:relative;
+  z-index:1;
+}
+
+/* ESQUERDA */
+.left{
+  position:sticky;
+  left:var(--sidebarW);
+  z-index:5000;
+  background:#fff;
+  border-right:2px solid var(--borda);
+}
+
+.leftTopSpacer{
+  position:sticky;
+  top:var(--stickyTop);
+  left:var(--sidebarW);
+  z-index:5200;
+  height:var(--tableHeadH);
+  background:var(--marrom-escuro2);
+}
+.leftTopSpacerInner{
+  height:100%;
+  display:grid;
+  grid-template-rows:var(--dateH) var(--respH) var(--dnH);
+}
+.leftTopSpacerInner .a{
+  background:var(--marrom-medio);
+  border-bottom:1px solid rgba(255,255,255,.22);
+}
+.leftTopSpacerInner .b{
+  background:var(--marrom-escuro2);
+  border-bottom:1px solid rgba(255,255,255,.18);
+}
+.leftTopSpacerInner .c{
+  background:var(--marrom-escuro2);
+}
+
+.leftStickyBody{
+  position:sticky;
+  top:calc(var(--stickyTop) + var(--tableHeadH));
+  left:var(--sidebarW);
+  z-index:5100;
+  background:#fff;
+  box-shadow:2px 0 0 var(--borda);
+}
+
+/* DIREITA */
+.right{
+  background:#fff;
+  position:relative;
+  z-index:1;
+}
+.rightHeadWrap{
+  position:sticky;
+  top:var(--stickyTop);
+  z-index:4900;
+  background:#fff;
+}
+#rightBody{
+  position:relative;
+  z-index:1;
+}
+
+/* GRID DE DIAS */
+.grid-days{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:calc(var(--colW) * 2);
+}
+
+.dayHead{
+  display:grid;
+  grid-template-rows:var(--dateH) var(--respH) var(--dnH);
+  border-left:1px solid var(--linha);
+}
+.dayHead .date{
+  background:var(--marrom-medio);
+  color:#fff;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-bottom:1px solid rgba(255,255,255,.25);
+  font-size:15px;
+}
+.dayHead .resp{
+  background:var(--marrom-escuro2);
+  color:#fff;
+  font-weight:800;
+  font-size:11.5px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-bottom:1px solid rgba(255,255,255,.20);
+}
+.dayHead .resp > div{
+  padding:6px 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border-right:1px solid rgba(255,255,255,.20);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.dayHead .resp > div:last-child{ border-right:none; }
+
+.dayHead .dn{
+  background:var(--marrom-escuro2);
+  color:#fff;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+.dayHead .dn div{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  border-left:1px solid rgba(255,255,255,.15);
+}
+.dayHead .dn div:first-child{ border-left:none; }
+
+/* CORPO DIREITA */
+.rowRight{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:calc(var(--colW) * 2);
+  min-height:var(--rowMinH);
+  height:auto;
+}
+.dayCells{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-left:1px solid var(--linha);
+}
+.cell{
+  border-bottom:1px solid var(--linha);
+  border-right:1px solid var(--linha);
+  padding:8px 8px;
+  min-height:var(--rowMinH);
+  height:auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  overflow:visible;
+  background:#fff;
+}
+.cell:last-child{ border-right:none; }
+
+.cell.text{
+  justify-content:flex-start;
+  text-align:left;
+  white-space:normal;
+  line-height:1.2;
+}
+
+.cell .v{
+  font-weight:800;
+  color:#2a1a17;
+  display:block;
+  width:100%;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  line-height:1.25;
+}
+
+.cell.titleSpacer{
+  min-height:var(--titleH);
+  height:var(--titleH);
+  background:var(--bege);
+}
+.cell.headSpacer{
+  background:#f6f1ef;
+}
+
+/* ESQUERDA LINHAS */
+.rowTitleL{
+  min-height:var(--titleH);
+  height:auto;
+  background:var(--bege);
+  border-bottom:1px solid var(--linha);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:14px;
+  padding:8px 10px;
+  text-align:center;
+}
+
+.rowLineL{
+  min-height:var(--rowMinH);
+  height:auto;
+  border-bottom:1px solid var(--linha);
+  display:flex;
+  align-items:center;
+  padding:8px 10px;
+  overflow:visible;
+  background:#fff;
+}
+.rowLineL .lab{
+  font-weight:900;
+  color:#2a1a17;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  line-height:1.25;
+}
+
+.leftGrid4{
+  display:grid;
+  grid-template-columns:minmax(0,1.6fr) minmax(70px,.7fr) minmax(80px,.8fr) minmax(70px,.5fr);
+  width:100%;
+  align-items:center;
+  gap:6px;
+}
+.leftGrid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  width:100%;
+  align-items:center;
+  gap:10px;
+}
+.leftGrid4 > div,
+.leftGrid2 > div{
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  line-height:1.25;
+}
+.leftHeadRow{
+  background:#f6f1ef;
+  font-weight:900;
+}
+
+/* BLOCOS */
+.blocks{
+  padding:12px;
+  border-top:1px solid var(--borda);
+  background:#fff;
+}
+.blocks h3{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:900;
+  color:#2a1a17;
+}
+
+#exameBlocks,
+#intercorrenciaBlocks{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(420px, 1fr));
+  gap:12px;
+  align-items:start;
+}
+
+.date-block{
+  border:1px solid var(--borda);
+  border-radius:14px;
+  background:#faf7f6;
+  overflow:hidden;
+  margin-bottom:0;
+  height:100%;
+}
+.date-head{
+  background:var(--bege);
+  border-bottom:1px solid var(--borda);
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.date-head .title{
+  font-weight:900;
+  color:#2a1a17;
+}
+.turnos{
+  padding:10px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.turno-card{
+  background:#fff;
+  border:1px solid #eadfda;
+  border-radius:14px;
+  overflow:hidden;
+}
+.turno-head{
+  padding:8px 10px;
+  background:#fff7f4;
+  border-bottom:1px solid #eadfda;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.turno-head .t{
+  font-weight:900;
+  color:#2a1a17;
+}
+.turno-head .r{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:900;
+}
+.turno-body{ padding:10px; }
+.menu-row{
+  margin-bottom:10px;
+  padding:8px 10px;
+  border:1px solid #eadfda;
+  border-radius:12px;
+  background:#fff;
+}
+.menu-row:last-child{ margin-bottom:0; }
+.menu-title{
+  font-weight:900;
+  color:#2a1a17;
+  margin-bottom:4px;
+}
+.menu-value{
+  color:#3b2a26;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  white-space:normal;
+  line-height:1.25;
+}
+
+.obs-card{
+  background:#fff;
+  border:1px solid #eadfda;
+  border-radius:14px;
+  overflow:hidden;
+}
+.obs-head{
+  padding:8px 10px;
+  background:#fff7f4;
+  border-bottom:1px solid #eadfda;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.obs-head .t{
+  font-weight:900;
+  color:#2a1a17;
+}
+.obs-head .r{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:900;
+}
+.obs-body{
+  padding:12px;
+  color:#3b2a26;
+  white-space:pre-wrap;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  line-height:1.35;
+}
+
+/* CHECKBOX */
+.box{
+  width:18px;
+  height:18px;
+  border:2px solid #7b6b66;
+  border-radius:4px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:900;
+  color:#3b2a26;
+  flex-shrink:0;
+}
+.box.on{ background:#e8ded9; }
+
+@media (max-width:980px){
+  :root{
+    --sidebarW:230px;
+    --leftWidth:420px;
+    --colW:130px;
+  }
+  .controls{ grid-template-columns:1fr; }
+  .turnos{ grid-template-columns:1fr; }
+  #exameBlocks,
+  #intercorrenciaBlocks{ grid-template-columns:1fr; }
+}
+
+@media print{
+  body{ background:#fff; overflow:visible; }
+  .sidebar{ display:none !important; }
+  .main{ margin-left:0; }
+  .header-fixo{
+    position:static;
+    left:auto;
+    right:auto;
+    box-shadow:none;
+    padding:0;
+  }
+  .header-space{ display:none; }
+  .btn-print{ display:none !important; }
+  .controls{ display:none !important; }
+  .left,
+  .leftTopSpacer,
+  .leftStickyBody,
+  .rightHeadWrap{
+    position:static;
+    left:auto;
+    top:auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Prancheta</h2>
+
+  <div class="top-buttons">
+    <button onclick="voltarHome()">⬅ Voltar Home</button>
+    <button onclick="abrirChecagem()">📝 Ir para Checagem</button>
+    <button onclick="sair()">🚪 Sair</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="header-fixo">
+    <div class="header-card">
+      <div class="header-top">
+        <div class="header-ident">
+          <p class="nome" id="titulo">Selecione um residente</p>
+          <p class="sub" id="subtitulo">Modo: Dia / Semana / Mensal.</p>
+        </div>
+
+        <div class="badges">
+          <button class="btn-print" onclick="imprimir()">🖨️ Imprimir</button>
+          <span class="badge">👤 <b>Usuário:</b> <span id="usuarioLogado"></span></span>
+          <span class="badge">🔐 <b>Nível:</b> <span id="nivelAcesso"></span></span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="ctrl">
+          <label>Residente (Ativos)</label>
+          <select id="residenteSelect" onchange="renderTudo()">
+            <option value="">Selecione</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <label>Visualização</label>
+          <select id="modoSelect" onchange="atualizarControlesModo();renderTudo()">
+            <option value="semana">Semana (últimos 7 dias)</option>
+            <option value="dia">Dia</option>
+            <option value="mensal">Mensal</option>
+          </select>
+        </div>
+
+        <div class="ctrl" id="ctrlDia" style="display:none;">
+          <label>Escolher dia</label>
+          <input type="date" id="diaExato" onchange="renderTudo()">
+        </div>
+
+        <div class="ctrl" id="ctrlMes" style="display:none;">
+          <label>Escolher mês</label>
+          <input type="month" id="mesExato" onchange="renderTudo()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-space"></div>
+
+  <div class="content-area">
+    <div class="wrap">
+      <div class="sheet-viewport" id="viewport">
+        <div class="sheet">
+
+          <div class="left" id="leftArea"></div>
+
+          <div class="right">
+            <div class="rightHeadWrap" id="rightHead"></div>
+            <div id="rightBody"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="blocks">
+        <h3>Intercorrências/Observações</h3>
+        <div id="intercorrenciaBlocks"></div>
+      </div>
+
+      <div class="blocks">
+        <h3>Exame Físico (somente quando foi preenchido)</h3>
+        <div id="exameBlocks"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ========= LINKS ========= */
+const URL_CADASTRO_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBLGcDsVFkXuamtA4_w0HTcw6l_Y_iddzJiKG5P9SftL1JwHBsSxnGgbljd_4Eft_xDN0Pnt_3oFMh/pub?gid=0&single=true&output=csv";
+
+const URL_HISTORICO_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSb9bXrYg7JyasA8A1-2k067xQSelXGdwj_8iXB9DFlw3cnCv-LJCsBaHfnWP2rSIZLA0n8kU2xHZ0k/pub?gid=0&single=true&output=csv";
+
+const URL_MEDICACOES_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBLGcDsVFkXuamtA4_w0HTcw6l_Y_iddzJiKG5P9SftL1JwHBsSxnGgbljd_4Eft_xDN0Pnt_3oFMh/pub?gid=350042235&single=true&output=csv";
+
+/* ========= USUÁRIO ========= */
+usuarioLogado.innerText = localStorage.getItem("usuarioLogado") || "Não identificado";
+nivelAcesso.innerText = localStorage.getItem("nivelAcesso") || "-";
+
+/* ========= CUIDADOS FIXOS ========= */
+const CUIDADOS_DIURNO = [
+  "Ofertado ambiente calmo e seguro",
+  "Verificado SSVV",
+  "Ofertado apoio de enfermagem",
+  "Ofertado alimentação",
+  "Ofertado ingesta hídrica",
+  "Ofertado banho de sol",
+  "Ofertado atividades interativas",
+  "Auxiliado em banho",
+  "Realizado hidratação corporal",
+  "Realizado corte de unhas",
+  "Realizado higiene oral",
+  "Realização administração de medicamentos",
+  "Realizado contensão em poltrona",
+  "Realizado mudança de decúbito",
+  "Realizado curativo",
+  "Mantido a grade no leito elevada",
+  "Mantida cabeceira elevada"
+];
+const CUIDADOS_NOTURNO = [
+  "Ofertado ambiente calmo e seguro",
+  "Verificado SSVV",
+  "Ofertado apoio de enfermagem",
+  "Ofertado alimentação noturna",
+  "Ofertado ingesta hídrica noturna",
+  "Auxiliado em banho",
+  "Realizado hidratação corporal",
+  "Realizado corte de unhas",
+  "Realizado higiene oral",
+  "Realização administração de medicamentos",
+  "Realizado contensão em poltrona",
+  "Realizado mudança de decúbito",
+  "Realizado curativo",
+  "Mantido a grade no leito elevada",
+  "Mantida cabeceira elevada"
+];
+
+/* ========= EVOLUÇÃO ========= */
+const EVOL_CAMPOS = [
+  "Orientação","Nível de consciência","Confusão mental","Conversação","Deambulação",
+  "Respiração","Alimentação","Tipo de Alimento","Sono",
+  "Conduta de Eliminações","Eliminações Vesicais","Eliminações Intestinais"
+];
+
+/* ========= SSVV ========= */
+const SSVV_CAMPOS = [
+  { key:"Pressao", label:"Pressão Arterial" },
+  { key:"Frequencia", label:"Frequência Cardíaca" },
+  { key:"Saturacao", label:"Saturação" },
+  { key:"Temperatura", label:"Temperatura" }
+];
+
+/* ========= EXAME FÍSICO ========= */
+const EXAME_MENUS = [
+  "Nível de Consciencia","Cabeça","Nariz","Olhos","Boca","Dorso","Orelhas","Pescoço","Tórax","Abdomên",
+  "Sistema Respiratório","Sistema cardiovascular","Sistema Reprodutor","MMII","MMSS","Alimentação","Ingesta Hidrica",
+  "Eliminações Intestinais","Eliminações Urinárias","Conduta de Eliminações","Grau de Dependências","Diagnósticos Nanda"
+];
+
+/* ========= HELPERS ========= */
+function normalizeText(s){
+  return (s||"").toString().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function normName(s){ return normalizeText(s); }
+function stripBOM(s){ return (s||"").replace(/^\uFEFF/,""); }
+
+function escapeHtml(str){
+  return (str || "").toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function isoToBr(iso){
+  if(!iso || !iso.includes("-")) return iso || "";
+  const [a,m,d] = iso.split("-");
+  return `${d}/${m}/${a}`;
+}
+function brToISO(br){
+  if(!br || !br.includes("/")) return "";
+  const [d,m,a] = br.split("/");
+  return `${a}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+function parseToISODate(v){
+  v = (v||"").toString().trim();
+  if(!v) return "";
+  const only = v.includes("T") ? v.split("T")[0] : v;
+  if(only.includes("/")) return brToISO(only);
+  if(only.includes("-")) {
+    const p = only.split("-");
+    if(p[0].length === 4) return `${p[0]}-${String(p[1]).padStart(2,"0")}-${String(p[2]).padStart(2,"0")}`;
+  }
+  return "";
+}
+function todayISO(){
+  const now = new Date();
+  const a = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,"0");
+  const d = String(now.getDate()).padStart(2,"0");
+  return `${a}-${m}-${d}`;
+}
+function addDaysISO(iso, days){
+  const dt = new Date(iso+"T00:00:00");
+  dt.setDate(dt.getDate()+days);
+  const a = dt.getFullYear();
+  const m = String(dt.getMonth()+1).padStart(2,"0");
+  const d = String(dt.getDate()).padStart(2,"0");
+  return `${a}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+
+function ajustarLayoutFixo(){
+  const hf = document.querySelector(".header-fixo");
+  if(!hf) return;
+  const h = Math.ceil(hf.offsetHeight);
+  document.documentElement.style.setProperty("--headerMainH", h + "px");
+  document.documentElement.style.setProperty("--stickyTop", h + "px");
+}
+
+function sincronizarAlturasLinhas(){
+  const leftRows = Array.from(document.querySelectorAll(".sync-left-row"));
+  const rightRows = Array.from(document.querySelectorAll(".sync-right-row"));
+
+  if(!leftRows.length || !rightRows.length) return;
+
+  leftRows.forEach(el => {
+    el.style.height = "auto";
+    el.style.minHeight = "";
+  });
+
+  rightRows.forEach(el => {
+    el.style.height = "auto";
+    el.style.minHeight = "";
+  });
+
+  const total = Math.min(leftRows.length, rightRows.length);
+
+  for(let i = 0; i < total; i++){
+    const l = leftRows[i];
+    const r = rightRows[i];
+
+    const lh = l.offsetHeight;
+    const rh = r.offsetHeight;
+    const max = Math.max(lh, rh);
+
+    l.style.height = max + "px";
+    r.style.height = max + "px";
+    l.style.minHeight = max + "px";
+    r.style.minHeight = max + "px";
+  }
+}
+
+/* CSV robusto */
+function parseCSV(text){
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    const next = text[i+1];
+
+    if(c === '"'){
+      if(inQuotes && next === '"'){ field += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+      continue;
+    }
+    if(c === ',' && !inQuotes){
+      row.push(field); field = ""; continue;
+    }
+    if((c === '\n' || c === '\r') && !inQuotes){
+      if(c === '\r' && next === '\n') i++;
+      row.push(field); field = "";
+      if(row.some(v => (v||"").trim().length>0)){
+        rows.push(row.map(v => (v??"").toString().trim()));
+      }
+      row = [];
+      continue;
+    }
+    field += c;
+  }
+  row.push(field);
+  if(row.some(v => (v||"").trim().length>0)){
+    rows.push(row.map(v => (v??"").toString().trim()));
+  }
+  return rows;
+}
+
+async function fetchText(url){
+  const bust = (url.includes("?") ? "&" : "?") + "t=" + Date.now();
+  const r = await fetch(url + bust, { cache:"no-store" });
+  return await r.text();
+}
+
+/* ========= DADOS ========= */
+let historico = [];
+let medsPorResidente = {};
+
+function canonicalHistorico(headers, body){
+  const idx = {};
+  headers.forEach((h,i)=> idx[normalizeText(h)] = i);
+
+  function get(line, ...keys){
+    for(const k of keys){
+      const nk = normalizeText(k);
+      if(idx[nk] !== undefined) return (line[idx[nk]] ?? "").toString().trim();
+    }
+    return "";
+  }
+
+  return body.map(line=>{
+    const Data = get(line, "Data");
+    const Residente = get(line, "Residente");
+    const Turno = get(line, "Turno");
+    const Responsavel = get(line, "Responsável", "Responsavel");
+
+    const Pressao = get(line, "Pressão arterial", "Pressao arterial");
+    const Frequencia = get(line, "Frequência cardiaca", "Frequencia cardiaca");
+    const Saturacao = get(line, "Saturação", "Saturacao");
+    const Temperatura = get(line, "Temperatura");
+
+    const Medicacoes = get(line, "Medicações", "Medicacoes");
+    const Cuidados = get(line, "Cuidados");
+
+    const Evolucao = {
+      "Orientação": get(line, "Orientação", "Orientacao"),
+      "Nível de consciência": get(line, "Nível de consciência", "Nivel de consciencia"),
+      "Confusão mental": get(line, "Confusão mental", "Confusao mental"),
+      "Conversação": get(line, "Conversação", "Conversacao"),
+      "Deambulação": get(line, "Deambulação", "Deambulacao"),
+      "Respiração": get(line, "Respiração", "Respiracao"),
+      "Alimentação": get(line, "Alimentação", "Alimentacao"),
+      "Tipo de Alimento": get(line, "Tipo de Alimento", "Tipo de alimento"),
+      "Sono": get(line, "Sono"),
+      "Conduta de Eliminações": get(line, "Conduta de Eliminações", "Conduta de eliminacoes"),
+      "Eliminações Vesicais": get(line, "Eliminações Vesicais", "Eliminacoes vesicais"),
+      "Eliminações Intestinais": get(line, "Eliminações Intestinais", "Eliminacoes intestinais"),
+    };
+
+    const ExameMarcado = get(line, "Exame Físico (marcado)", "Exame fisico (marcado)");
+    const IntercorrenciasObservacoes = get(line, "Intercorrências/Observações", "Intercorrencias/Observacoes", "Intercorrencias/Observações", "Intercorrencias", "Observações", "Observacoes");
+
+    const _iso = parseToISODate(Data);
+    const _resKey = normName(Residente);
+    const _turnoKey = normalizeText(Turno);
+
+    return {
+      Data, Residente, Turno, Responsavel,
+      Pressao, Frequencia, Saturacao, Temperatura,
+      Medicacoes, Cuidados, Evolucao,
+      ExameMarcado,
+      IntercorrenciasObservacoes,
+      _iso, _resKey, _turnoKey
+    };
+  }).filter(r => r._iso && r.Residente);
+}
+
+function medsMarcadasDoHistorico(texto){
+  const s = (texto||"").toString().trim();
+  if(!s) return new Set();
+  const parts = s.split(" | ").map(x=>x.trim()).filter(Boolean);
+  const set = new Set();
+  for(const p of parts){
+    const low = p.toLowerCase();
+    if(low.startsWith("dose:") || low.startsWith("horário:") || low.startsWith("horario:")
+       || low.startsWith("dias:") || low.startsWith("via:")){
+      continue;
+    }
+    set.add(normalizeText(p));
+  }
+  return set;
+}
+function cuidadosMarcadosSet(texto){
+  const set = new Set();
+  (texto||"").split(" | ").map(x=>x.trim()).filter(Boolean)
+    .forEach(it=> set.add(normalizeText(it)));
+  return set;
+}
+
+function normalizarTituloMenu(s){
+  return (s||"").toString().trim()
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g," ");
+}
+function montarMapaMenus(){
+  const map = new Map();
+  EXAME_MENUS.forEach(m => map.set(normalizarTituloMenu(m), m));
+  return map;
+}
+const MENU_MAP = montarMapaMenus();
+
+function parseExameAgrupado(exameStr){
+  const out = {};
+  EXAME_MENUS.forEach(m => out[m] = []);
+  const s = (exameStr || "").toString().trim();
+  if(!s) return out;
+
+  const partes = s.split(" | ").map(x => x.trim()).filter(Boolean);
+  partes.forEach(p=>{
+    const idx = p.indexOf(":");
+    if(idx === -1) return;
+    const menuRaw = p.slice(0, idx).trim();
+    const resp = p.slice(idx+1).trim();
+    if(!resp) return;
+    const key = normalizarTituloMenu(menuRaw);
+    const menuOficial = MENU_MAP.get(key);
+    if(menuOficial) out[menuOficial].push(resp);
+  });
+
+  EXAME_MENUS.forEach(m=>{
+    const seen = new Set();
+    out[m] = out[m].filter(x=>{
+      const k = (x||"").toString().trim().toLowerCase();
+      if(!k) return false;
+      if(seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  });
+
+  return out;
+}
+
+/* UI */
+function voltarHome(){ window.location = "painel.html"; }
+function abrirChecagem(){ window.location = "checagem.html"; }
+function sair(){ localStorage.clear(); window.location = "entrada.html"; }
+function imprimir(){ window.print(); }
+
+function checkboxHTML(on){
+  return `<span class="box ${on ? "on" : ""}">${on ? "✓" : ""}</span>`;
+}
+
+function getDatesForMode(){
+  const modo = modoSelect.value;
+  if(modo === "dia"){
+    const d = diaExato.value || todayISO();
+    return [d];
+  }
+  if(modo === "semana"){
+    const end = todayISO();
+    const dates = [];
+    for(let i=6;i>=0;i--) dates.push(addDaysISO(end, -i));
+    return dates;
+  }
+  const ym = (mesExato.value || todayISO().slice(0,7));
+  const [yy,mm] = ym.split("-").map(Number);
+  const last = new Date(yy, mm, 0);
+  const days = last.getDate();
+  const dates = [];
+  for(let d=1; d<=days; d++){
+    dates.push(`${yy}-${String(mm).padStart(2,"0")}-${String(d).padStart(2,"0")}`);
+  }
+  return dates;
+}
+
+function atualizarControlesModo(){
+  const modo = modoSelect.value;
+  ctrlDia.style.display = (modo === "dia") ? "block" : "none";
+  ctrlMes.style.display = (modo === "mensal") ? "block" : "none";
+  if(modo === "dia" && !diaExato.value) diaExato.value = todayISO();
+  if(modo === "mensal" && !mesExato.value) mesExato.value = todayISO().slice(0,7);
+  ajustarLayoutFixo();
+}
+
+function findRecord(resKey, iso, turnoKey){
+  return historico.find(r => r._resKey === resKey && r._iso === iso && r._turnoKey === turnoKey) || null;
+}
+
+function renderLeft(medsAll){
+  const maxCare = Math.max(CUIDADOS_DIURNO.length, CUIDADOS_NOTURNO.length);
+
+  let html = `
+    <div class="leftTopSpacer">
+      <div class="leftTopSpacerInner">
+        <div class="a"></div>
+        <div class="b"></div>
+        <div class="c"></div>
+      </div>
+    </div>
+    <div class="leftStickyBody">
+  `;
+
+  html += `<div class="rowTitleL sync-left-row">Sinais Vitais:</div>`;
+  SSVV_CAMPOS.forEach(c=>{
+    html += `<div class="rowLineL sync-left-row"><span class="lab">${c.label}:</span></div>`;
+  });
+
+  html += `<div class="rowTitleL sync-left-row">Checagem de Medicamentos:</div>`;
+  html += `
+    <div class="rowLineL leftHeadRow sync-left-row">
+      <div class="leftGrid4">
+        <div style="text-align:left">Medicação</div>
+        <div style="text-align:center">Mg</div>
+        <div style="text-align:center">Horário</div>
+        <div style="text-align:center">Turno</div>
+      </div>
+    </div>
+  `;
+
+  if(!medsAll.length){
+    html += `<div class="rowLineL sync-left-row" style="justify-content:center;color:#6a5d59;font-weight:900;">Nenhuma medicação cadastrada</div>`;
+  }else{
+    medsAll.forEach(m=>{
+      html += `
+        <div class="rowLineL sync-left-row">
+          <div class="leftGrid4">
+            <div title="${escapeHtml(m.nome||"")}" style="text-align:left; font-weight:900;">${escapeHtml(m.nome || "")}</div>
+            <div style="text-align:center">${escapeHtml(m.dose || "")}</div>
+            <div style="text-align:center">${escapeHtml(m.horario || "")}</div>
+            <div style="text-align:center">${escapeHtml(m.turno || "-")}</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  html += `<div class="rowTitleL sync-left-row">Cuidados de Enfermagem:</div>`;
+  html += `
+    <div class="rowLineL leftHeadRow sync-left-row">
+      <div class="leftGrid2">
+        <div style="text-align:center">Cuidados Diurno:</div>
+        <div style="text-align:center">Cuidados Noturno:</div>
+      </div>
+    </div>
+  `;
+
+  for(let i=0;i<maxCare;i++){
+    const d = CUIDADOS_DIURNO[i] || "";
+    const n = CUIDADOS_NOTURNO[i] || "";
+    html += `
+      <div class="rowLineL sync-left-row">
+        <div class="leftGrid2">
+          <div title="${escapeHtml(d)}">${escapeHtml(d)}</div>
+          <div title="${escapeHtml(n)}">${escapeHtml(n)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  html += `<div class="rowTitleL sync-left-row">Evolução de Enfermagem:</div>`;
+  EVOL_CAMPOS.forEach(k=>{
+    html += `<div class="rowLineL sync-left-row"><span class="lab">${escapeHtml(k)}:</span></div>`;
+  });
+
+  leftArea.innerHTML = html + `</div>`;
+}
+
+function renderRightHead(resKey, dates){
+  rightHead.innerHTML = `
+    <div class="grid-days">
+      ${dates.map(iso=>{
+        const rd = findRecord(resKey, iso, "diurno");
+        const rn = findRecord(resKey, iso, "noturno");
+        const respD = (rd?.Responsavel || "-");
+        const respN = (rn?.Responsavel || "-");
+        return `
+          <div class="dayHead">
+            <div class="date">${escapeHtml(isoToBr(iso))}</div>
+            <div class="resp">
+              <div title="Diurno: ${escapeHtml(respD)}">D: ${escapeHtml(respD)}</div>
+              <div title="Noturno: ${escapeHtml(respN)}">N: ${escapeHtml(respN)}</div>
+            </div>
+            <div class="dn"><div>D</div><div>N</div></div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function rightBlankRow(dates, kind="normal"){
+  const cls = kind === "title" ? "titleSpacer" : (kind === "head" ? "headSpacer" : "");
+  return `<div class="rowRight sync-right-row">` + dates.map(()=>`
+    <div class="dayCells">
+      <div class="cell ${cls}"></div>
+      <div class="cell ${cls}"></div>
+    </div>
+  `).join("") + `</div>`;
+}
+
+function renderRightBody(resKey, dates, medsAll){
+  const setDates = new Set(dates);
+  const regsPeriodo = historico.filter(r => r._resKey === resKey && setDates.has(r._iso));
+
+  const medsIndex = {};
+  const cuidadosIndex = {};
+  regsPeriodo.forEach(r=>{
+    if(!medsIndex[r._iso]) medsIndex[r._iso] = {};
+    medsIndex[r._iso][r._turnoKey] = medsMarcadasDoHistorico(r.Medicacoes);
+
+    if(!cuidadosIndex[r._iso]) cuidadosIndex[r._iso] = {};
+    cuidadosIndex[r._iso][r._turnoKey] = cuidadosMarcadosSet(r.Cuidados);
+  });
+
+  let html = "";
+
+  html += rightBlankRow(dates, "title");
+  SSVV_CAMPOS.forEach(c=>{
+    html += `<div class="rowRight sync-right-row">` + dates.map(iso=>{
+      const rd = findRecord(resKey, iso, "diurno");
+      const rn = findRecord(resKey, iso, "noturno");
+      const vd = (rd?.[c.key] || "").toString().trim();
+      const vn = (rn?.[c.key] || "").toString().trim();
+      return `
+        <div class="dayCells">
+          <div class="cell text"><span class="v" title="${escapeHtml(vd)}">${escapeHtml(vd)}</span></div>
+          <div class="cell text"><span class="v" title="${escapeHtml(vn)}">${escapeHtml(vn)}</span></div>
+        </div>
+      `;
+    }).join("") + `</div>`;
+  });
+
+  html += rightBlankRow(dates, "title");
+  html += rightBlankRow(dates, "head");
+
+  if(!medsAll.length){
+    html += rightBlankRow(dates, "normal");
+  }else{
+    medsAll.forEach(m=>{
+      html += `<div class="rowRight sync-right-row">` + dates.map(iso=>{
+        const sd = medsIndex[iso]?.["diurno"] || new Set();
+        const sn = medsIndex[iso]?.["noturno"] || new Set();
+        const dMarked = sd.has(m.key);
+        const nMarked = sn.has(m.key);
+        return `
+          <div class="dayCells">
+            <div class="cell">${checkboxHTML(dMarked)}</div>
+            <div class="cell">${checkboxHTML(nMarked)}</div>
+          </div>
+        `;
+      }).join("") + `</div>`;
+    });
+  }
+
+  html += rightBlankRow(dates, "title");
+  html += rightBlankRow(dates, "head");
+
+  const maxCare = Math.max(CUIDADOS_DIURNO.length, CUIDADOS_NOTURNO.length);
+  for(let i=0;i<maxCare;i++){
+    const diuItem = CUIDADOS_DIURNO[i] || "";
+    const notItem = CUIDADOS_NOTURNO[i] || "";
+    const diuKey = normalizeText(diuItem);
+    const notKey = normalizeText(notItem);
+
+    html += `<div class="rowRight sync-right-row">` + dates.map(iso=>{
+      const sd = cuidadosIndex[iso]?.["diurno"] || new Set();
+      const sn = cuidadosIndex[iso]?.["noturno"] || new Set();
+      const dMarked = diuItem ? sd.has(diuKey) : false;
+      const nMarked = notItem ? sn.has(notKey) : false;
+
+      return `
+        <div class="dayCells">
+          <div class="cell">${checkboxHTML(dMarked)}</div>
+          <div class="cell">${checkboxHTML(nMarked)}</div>
+        </div>
+      `;
+    }).join("") + `</div>`;
+  }
+
+  html += rightBlankRow(dates, "title");
+  EVOL_CAMPOS.forEach(k=>{
+    html += `<div class="rowRight sync-right-row">` + dates.map(iso=>{
+      const rd = findRecord(resKey, iso, "diurno");
+      const rn = findRecord(resKey, iso, "noturno");
+      const vd = (rd?.Evolucao?.[k] || "").toString().trim();
+      const vn = (rn?.Evolucao?.[k] || "").toString().trim();
+      return `
+        <div class="dayCells">
+          <div class="cell text"><span class="v" title="${escapeHtml(vd)}">${escapeHtml(vd)}</span></div>
+          <div class="cell text"><span class="v" title="${escapeHtml(vn)}">${escapeHtml(vn)}</span></div>
+        </div>
+      `;
+    }).join("") + `</div>`;
+  });
+
+  rightBody.innerHTML = html;
+}
+
+function renderIntercorrenciaBlocos(resKey, dates){
+  const setDates = new Set(dates);
+
+  const regs = historico
+    .filter(r =>
+      r._resKey === resKey &&
+      setDates.has(r._iso) &&
+      (r.IntercorrenciasObservacoes || "").trim().length > 0
+    )
+    .sort((a,b)=> (a._iso + a._turnoKey).localeCompare(b._iso + b._turnoKey));
+
+  if(regs.length === 0){
+    intercorrenciaBlocks.innerHTML = `<div style="color:#6a5d59;font-size:12.5px">Nenhuma intercorrência/observação preenchida nesse período.</div>`;
+    return;
+  }
+
+  const byDate = new Map();
+  regs.forEach(r=>{
+    if(!byDate.has(r._iso)) byDate.set(r._iso, []);
+    byDate.get(r._iso).push(r);
+  });
+
+  const datas = Array.from(byDate.keys()).sort();
+  let html = "";
+
+  datas.forEach(iso=>{
+    const arr = byDate.get(iso);
+    const diaBR = isoToBr(iso);
+
+    html += `<div class="date-block">
+      <div class="date-head">
+        <div class="title">${escapeHtml(diaBR)}</div>
+      </div>
+      <div class="turnos">`;
+
+    arr.sort((a,b)=>{
+      const pa = a._turnoKey === "diurno" ? 0 : 1;
+      const pb = b._turnoKey === "diurno" ? 0 : 1;
+      return pa - pb;
+    });
+
+    arr.forEach(r=>{
+      html += `
+        <div class="obs-card">
+          <div class="obs-head">
+            <div class="t">${escapeHtml(r.Turno || "-")}</div>
+            <div class="r">Responsável: ${escapeHtml(r.Responsavel || "-")}</div>
+          </div>
+          <div class="obs-body">${escapeHtml(r.IntercorrenciasObservacoes || "")}</div>
+        </div>
+      `;
+    });
+
+    html += `</div></div>`;
+  });
+
+  intercorrenciaBlocks.innerHTML = html;
+}
+
+function renderExameBlocos(resKey, dates){
+  const setDates = new Set(dates);
+
+  const regs = historico
+    .filter(r => r._resKey === resKey && setDates.has(r._iso) && (r.ExameMarcado||"").trim().length > 0)
+    .sort((a,b)=> (a._iso + a._turnoKey).localeCompare(b._iso + b._turnoKey));
+
+  if(regs.length === 0){
+    exameBlocks.innerHTML = `<div style="color:#6a5d59;font-size:12.5px">Nenhum exame físico preenchido nesse período.</div>`;
+    return;
+  }
+
+  const byDate = new Map();
+  regs.forEach(r=>{
+    if(!byDate.has(r._iso)) byDate.set(r._iso, []);
+    byDate.get(r._iso).push(r);
+  });
+
+  const datas = Array.from(byDate.keys()).sort();
+  let html = "";
+
+  datas.forEach(iso=>{
+    const arr = byDate.get(iso);
+    const diaBR = isoToBr(iso);
+
+    html += `<div class="date-block">
+      <div class="date-head">
+        <div class="title">${escapeHtml(diaBR)}</div>
+      </div>
+      <div class="turnos">`;
+
+    arr.sort((a,b)=>{
+      const pa = a._turnoKey === "diurno" ? 0 : 1;
+      const pb = b._turnoKey === "diurno" ? 0 : 1;
+      return pa - pb;
+    });
+
+    arr.forEach(r=>{
+      const agrupado = parseExameAgrupado(r.ExameMarcado);
+
+      html += `<div class="turno-card">
+        <div class="turno-head">
+          <div class="t">${escapeHtml(r.Turno)}</div>
+          <div class="r">Responsável: ${escapeHtml(r.Responsavel || "-")}</div>
+        </div>
+        <div class="turno-body">`;
+
+      EXAME_MENUS.forEach(menu=>{
+        const respostas = agrupado[menu] || [];
+        const texto = respostas.length ? respostas.join(", ") : "—";
+        html += `
+          <div class="menu-row">
+            <div class="menu-title">${escapeHtml(menu)}:</div>
+            <div class="menu-value">${escapeHtml(texto)}</div>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  exameBlocks.innerHTML = html;
+}
+
+/* INIT */
+(async function init(){
+  atualizarControlesModo();
+
+  const txtCad = await fetchText(URL_CADASTRO_CSV);
+  const rowsCad = parseCSV(txtCad);
+  const bodyCad = rowsCad.slice(1);
+
+  residenteSelect.innerHTML = `<option value="">Selecione</option>`;
+  bodyCad.forEach(l=>{
+    const nome = (l[0]||"").toString().trim();
+    const status = (l[3]||"").toString().trim().toLowerCase();
+    if(nome && status === "ativo"){
+      const o = document.createElement("option");
+      o.value = nome;
+      o.dataset.key = normName(nome);
+      o.textContent = nome;
+      residenteSelect.appendChild(o);
+    }
+  });
+
+  const txtH = await fetchText(URL_HISTORICO_CSV);
+  const rowsH = parseCSV(txtH);
+  const headersH = (rowsH[0]||[]).map(h=>stripBOM(h));
+  historico = canonicalHistorico(headersH, rowsH.slice(1));
+
+  const txtM = await fetchText(URL_MEDICACOES_CSV);
+  const rowsM = parseCSV(txtM);
+  const headersM = (rowsM[0]||[]).map(h=>stripBOM(h));
+  const bodyM = rowsM.slice(1);
+
+  const idx = {};
+  headersM.forEach((h,i)=> idx[normalizeText(h)] = i);
+  function col(line, name){
+    const i = idx[normalizeText(name)];
+    return i === undefined ? "" : (line[i] ?? "").toString().trim();
+  }
+
+  medsPorResidente = {};
+  bodyM.forEach(line=>{
+    const residente = col(line, "Residente");
+    const medicacao = col(line, "Medicação");
+    const dose = col(line, "Dose");
+    const horario = col(line, "Horario");
+    const turno = col(line, "Turno");
+
+    if(!residente || !medicacao) return;
+
+    const rk = normName(residente);
+    if(!medsPorResidente[rk]) medsPorResidente[rk] = [];
+    medsPorResidente[rk].push({
+      nome: medicacao,
+      dose, horario,
+      turno: turno || "-",
+      key: normalizeText(medicacao)
+    });
+  });
+
+  Object.keys(medsPorResidente).forEach(rk=>{
+    medsPorResidente[rk].sort((a,b)=> a.nome.localeCompare(b.nome,"pt-BR"));
+  });
+
+  renderTudo();
+  ajustarLayoutFixo();
+})();
+
+function renderTudo(){
+  const residente = residenteSelect.value;
+  const opt = residenteSelect.options[residenteSelect.selectedIndex];
+  const resKey = opt ? (opt.dataset.key || normName(residente)) : normName(residente);
+
+  if(!residente){
+    titulo.innerText = "Selecione um residente";
+    leftArea.innerHTML = `<div style="padding:14px;color:#6a5d59">Selecione um residente.</div>`;
+    rightHead.innerHTML = "";
+    rightBody.innerHTML = "";
+    intercorrenciaBlocks.innerHTML = `<div style="color:#6a5d59;font-size:12.5px">Selecione um residente para ver as intercorrências/observações.</div>`;
+    exameBlocks.innerHTML = `<div style="color:#6a5d59;font-size:12.5px">Selecione um residente para ver o exame físico.</div>`;
+    ajustarLayoutFixo();
+    return;
+  }
+
+  titulo.innerText = residente;
+  const dates = getDatesForMode();
+  const medsAll = medsPorResidente[resKey] || [];
+
+  renderLeft(medsAll);
+  renderRightHead(resKey, dates);
+  renderRightBody(resKey, dates, medsAll);
+  renderIntercorrenciaBlocos(resKey, dates);
+  renderExameBlocos(resKey, dates);
+
+  requestAnimationFrame(() => {
+    ajustarLayoutFixo();
+    sincronizarAlturasLinhas();
+
+    requestAnimationFrame(() => {
+      sincronizarAlturasLinhas();
+    });
+  });
+}
+
+window.addEventListener("load", () => {
+  ajustarLayoutFixo();
+  sincronizarAlturasLinhas();
+});
+
+window.addEventListener("resize", () => {
+  ajustarLayoutFixo();
+  sincronizarAlturasLinhas();
+});
+</script>
+
+</body>
+</html>

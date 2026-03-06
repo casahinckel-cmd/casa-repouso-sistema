@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Checagem - Casa de Repouso Hinckel</title>
+
+<style>
+:root{
+  --marrom-escuro:#4E342E;
+  --marrom-medio:#6D4C41;
+  --bege:#EFEBE9;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  font-size:14px;
+  line-height:1.35;
+  display:flex;
+  background:var(--bege);
+  color:#222;
+}
+
+h2{ font-size:18px; margin:0; }
+h3{ font-size:16px; margin:0; }
+
+/* SIDEBAR */
+.sidebar{
+  width:280px;
+  background:var(--marrom-escuro);
+  color:#fff;
+  padding:20px;
+  height:100vh;
+  overflow-y:auto;
+}
+.sidebar h2{ margin-bottom:10px; }
+.residente{
+  padding:10px;
+  margin-bottom:8px;
+  background:var(--marrom-medio);
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+.residente:hover{ background:#5D4037; }
+.top-buttons{ margin-top:20px; }
+.top-buttons button{
+  width:100%;
+  margin-bottom:10px;
+  background:#3E2723;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  padding:24px;
+  overflow-y:auto;
+}
+
+/* CABEÇALHO FIXO */
+.header-fixo{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:transparent;
+  padding-bottom:10px;
+}
+
+.header-card{
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+  border:1px solid rgba(0,0,0,.06);
+  padding:14px;
+}
+
+.header-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.header-ident{
+  min-width:240px;
+}
+.header-ident .nome{
+  font-size:20px;
+  font-weight:800;
+  margin:0 0 4px;
+  color:#2a1a17;
+}
+.header-ident .sub{
+  margin:0;
+  color:#5d5d5d;
+  font-size:13px;
+}
+
+.header-user{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:#f6f1ef;
+  border:1px solid #eadfda;
+  color:#3b2a26;
+  font-size:13px;
+}
+.badge b{ font-weight:800; }
+
+.header-controls{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px 12px;
+}
+@media (max-width: 900px){
+  .header-controls{ grid-template-columns: 1fr; }
+}
+
+.ctrl{
+  background:#faf7f6;
+  border:1px solid #eee;
+  border-radius:12px;
+  padding:10px;
+}
+.ctrl label{
+  display:block;
+  font-size:12px;
+  color:#5a5a5a;
+  font-weight:800;
+  margin-bottom:6px;
+}
+.ctrl select, .ctrl input{
+  width:100%;
+  padding:9px 10px;
+  border-radius:10px;
+  border:1px solid #d8d8d8;
+  background:#fff;
+  font-size:13.5px;
+  margin:0;
+}
+
+/* CARDS */
+.card{
+  background:#fff;
+  padding:18px;
+  margin-bottom:18px;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,.1);
+  overflow:hidden;
+}
+
+/* TÍTULO EM DESTAQUE */
+.titulo-secao{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  margin:-18px -18px 14px;
+  background:var(--marrom-medio);
+  color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.2);
+}
+.titulo-secao h3{ font-size:17px; }
+
+/* TABELAS */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th, td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:center;
+  font-size:13px;
+}
+th{
+  background:var(--marrom-medio);
+  color:#fff;
+}
+
+/* INPUTS */
+input, select, textarea{
+  width:100%;
+  max-width:100%;
+  padding:8px;
+  margin:5px 0 10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:13.5px;
+}
+textarea{
+  height:100px;
+  resize:vertical;
+}
+.texto-longo{
+  min-height:140px;
+}
+
+button{
+  padding:10px 12px;
+  background:var(--marrom-medio);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+button:hover{ background:var(--marrom-escuro); }
+
+/* CUIDADOS */
+.checklist-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px 12px;
+}
+@media (max-width: 700px){
+  .checklist-2{ grid-template-columns:1fr; }
+}
+.check-item{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  padding:10px;
+  border:1px solid #eee;
+  border-radius:8px;
+  background:#fafafa;
+}
+.check-item input{
+  width:auto;
+  margin-top:2px;
+}
+
+/* EVOLUÇÃO / EXAME */
+.bloco-cat{
+  border:1px solid #eee;
+  border-radius:10px;
+  background:#fff;
+  overflow:hidden;
+}
+.bloco-cat + .bloco-cat{ margin-top:12px; }
+
+.bloco-cat .cab{
+  background:#f7f4f3;
+  border-bottom:1px solid #eee;
+  padding:10px 12px;
+  font-weight:800;
+}
+
+.bloco-cat .conteudo{
+  padding:12px;
+}
+
+.opcoes-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px 10px;
+}
+@media (max-width: 700px){
+  .opcoes-2{ grid-template-columns:1fr; }
+}
+
+.opcao{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  padding:8px;
+  border:1px solid #eee;
+  border-radius:8px;
+  background:#fafafa;
+}
+.opcao input{
+  width:auto;
+  margin-top:2px;
+}
+
+/* ADMIN */
+.admin-wrap{
+  border:1px dashed #d0c6c3;
+  background:#fffdfc;
+}
+.admin-sub{
+  font-size:12.5px;
+  color:#555;
+  margin:-6px 0 10px;
+}
+.hidden{ display:none !important; }
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Residentes</h2>
+  <div id="listaResidentes"></div>
+
+  <div class="top-buttons">
+    <button onclick="voltarHome()">⬅ Voltar Home</button>
+    <button onclick="sair()">🚪 Sair do Sistema</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="header-fixo">
+    <div class="header-card">
+      <div class="header-top">
+        <div class="header-ident">
+          <p class="nome" id="nomeResidente">Selecione um residente</p>
+          <p class="sub" id="infoResidente"></p>
+        </div>
+
+        <div class="header-user">
+          <span class="badge">👤 <b>Usuário:</b> <span id="usuarioLogado"></span></span>
+          <span class="badge">🔐 <b>Nível:</b> <span id="nivelAcesso"></span></span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="ctrl">
+          <label>Turno</label>
+          <select id="turnoSelect" onchange="carregarCuidados()">
+            <option value="">Selecione</option>
+            <option value="Diurno">Diurno</option>
+            <option value="Noturno">Noturno</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <label>Data</label>
+          <input type="date" id="dataSelecionada" onchange="carregarMedicacoes();atualizarSinaisVitais()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ficha" style="display:none;">
+
+    <!-- SINAIS VITAIS -->
+    <div class="card">
+      <div class="titulo-secao"><h3>Sinais Vitais</h3></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Usuário</th>
+            <th>Pressão Arterial</th>
+            <th>Frequência Cardíaca (bpm)</th>
+            <th>Saturação (%)</th>
+            <th>Temperatura (°C)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="dataSinais"></td>
+            <td id="usuarioSinais"></td>
+            <td><input id="sv_pressao" type="text" placeholder="Ex: 120x80"></td>
+            <td><input id="sv_frequencia" type="number" placeholder="Ex: 72"></td>
+            <td><input id="sv_saturacao" type="number" placeholder="Ex: 98"></td>
+            <td><input id="sv_temperatura" type="number" step="0.1" placeholder="Ex: 36.5"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- MEDICAÇÕES -->
+    <div class="card">
+      <div class="titulo-secao"><h3>Medicações</h3></div>
+      <p style="margin:0 0 10px;"><b>Data:</b> <span id="dataTitulo"></span></p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Medicação</th>
+            <th>Dose</th>
+            <th>Horário</th>
+            <th>Dias</th>
+            <th>Via</th>
+            <th>Data</th>
+            <th>Usuário</th>
+            <th>✔</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaMedicacoes"></tbody>
+      </table>
+    </div>
+
+    <!-- CUIDADOS -->
+    <div class="card">
+      <div class="titulo-secao"><h3>Cuidados</h3></div>
+      <div class="checklist-2" id="listaCuidados"></div>
+    </div>
+
+    <!-- EVOLUÇÃO -->
+    <div class="card">
+      <div class="titulo-secao"><h3>Evolução de Enfermagem</h3></div>
+      <div id="evolucaoDividida"></div>
+    </div>
+
+    <!-- INTERCORRÊNCIAS / OBSERVAÇÕES -->
+    <div class="card">
+      <div class="titulo-secao"><h3>Intercorrências/Observações</h3></div>
+      <textarea
+        id="intercorrenciasObservacoes"
+        class="texto-longo"
+        placeholder="Digite aqui as intercorrências e observações do residente..."
+      ></textarea>
+    </div>
+
+    <!-- EXAME FÍSICO (ADMIN) -->
+    <div class="card admin-wrap hidden" id="adminSection">
+      <div class="titulo-secao"><h3>Exame Físico</h3></div>
+      <p class="admin-sub">Visível e editável apenas para usuários com nível <b>Administrador</b>.</p>
+      <div id="exameDividido"></div>
+    </div>
+
+    <button onclick="salvar()">Salvar Checagem</button>
+    <button onclick="limparCampos()">Limpar</button>
+
+  </div>
+</div>
+
+<script>
+/* ========= CONFIG SALVAR ========= */
+const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbwN22hp-kaHI_fmszTEy5cmEIhyotdHMUxVHEaGNRpIyk5vHBOJelClHveC4-i2m1nVow/exec";
+
+/* ========= USUÁRIO ========= */
+usuarioLogado.innerText = localStorage.getItem("usuarioLogado") || "Não identificado";
+nivelAcesso.innerText = localStorage.getItem("nivelAcesso") || "-";
+
+/* ========= DATA HOJE PADRÃO ========= */
+const hoje = new Date();
+const ano = hoje.getFullYear();
+const mes = String(hoje.getMonth()+1).padStart(2,'0');
+const dia = String(hoje.getDate()).padStart(2,'0');
+dataSelecionada.value = `${ano}-${mes}-${dia}`;
+
+/* ========= PERMISSÃO ADMIN ========= */
+function isAdmin(){
+  const n = (localStorage.getItem("nivelAcesso") || "").toLowerCase().trim();
+  return n === "administrador" || n.includes("admin");
+}
+function aplicarPermissoes(){
+  if(isAdmin()){
+    adminSection.classList.remove("hidden");
+  } else {
+    adminSection.classList.add("hidden");
+  }
+}
+
+/* ========= LINKS CSV (LEITURA) ========= */
+const urlCadastro = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBLGcDsVFkXuamtA4_w0HTcw6l_Y_iddzJiKG5P9SftL1JwHBsSxnGgbljd_4Eft_xDN0Pnt_3oFMh/pub?gid=0&single=true&output=csv";
+const urlMedicamentos = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBLGcDsVFkXuamtA4_w0HTcw6l_Y_iddzJiKG5P9SftL1JwHBsSxnGgbljd_4Eft_xDN0Pnt_3oFMh/pub?gid=350042235&single=true&output=csv";
+
+let medicamentos = [];
+let residenteAtual = "";
+
+/* ========= CUIDADOS FIXOS POR TURNO ========= */
+const cuidadosFixosDiurno = [
+  "Ofertado ambiente calmo e seguro",
+  "Verificado SSVV",
+  "Ofertado apoio de enfermagem",
+  "Ofertado alimentação",
+  "Ofertado ingesta hídrica",
+  "Ofertado banho de sol",
+  "Ofertado atividades interativas",
+  "Auxiliado em banho",
+  "Realizado hidratação corporal",
+  "Realizado corte de unhas",
+  "Realizado higiene oral",
+  "Realização administração de medicamentos",
+  "Realizado contensão em poltrona",
+  "Realizado mudança de decúbito",
+  "Realizado curativo",
+  "Mantido a grade no leito elevada",
+  "Mantida cabeceira elevada"
+];
+
+const cuidadosFixosNoturno = [
+  "Ofertado ambiente calmo e seguro",
+  "Verificado SSVV",
+  "Ofertado apoio de enfermagem",
+  "Ofertado alimentação noturna",
+  "Ofertado ingesta hídrica noturna",
+  "Auxiliado em banho",
+  "Realizado hidratação corporal",
+  "Realizado corte de unhas",
+  "Realizado higiene oral",
+  "Realização administração de medicamentos",
+  "Realizado contensão em poltrona",
+  "Realizado mudança de decúbito",
+  "Realizado curativo",
+  "Mantido a grade no leito elevada",
+  "Mantida cabeceira elevada"
+];
+
+/* ========= EVOLUÇÃO - CATEGORIAS ========= */
+const evolucaoCategorias = [
+  { titulo: "Orientação", opcoes: ["Orientado","Desorientado","Orientado parcialmente","Resid.ausente"] },
+  { titulo: "Nível de Consciência", opcoes: ["Consciente e alerta","Lúcido","Sonolento","Letárgico","Incosciente","Semi-comatoso","Resid.ausente"] },
+  { titulo: "Confusão Mental", opcoes: ["Ausente","Presente","Resid.ausente"] },
+  { titulo: "Conversação", opcoes: ["Contactuante","Não contactuante","Por estímulo","Resid.ausente"] },
+  { titulo: "Deambulação", opcoes: ["Cadeira de rodas","Bengala","Andador","Auxílio","Independente","Resid.ausente","N/A"] },
+  { titulo: "Respiração", opcoes: ["Eupneico","Dispneico","Em uso de O2","Saturação reduzida","Resid.ausente"] },
+  { titulo: "Alimentação", opcoes: ["Alimentou-se sozinho","Alimentou-se com auxílio","SNE","Afagia","Resid.ausente","N/A"] },
+  { titulo: "Tipo de Alimento", opcoes: ["Inteiro","Pastoso","Líquido","Resid.ausente","N/A"] },
+  { titulo: "Sono", opcoes: ["Sono preservado","Sono prejudicado","Insônia","Resid.ausente"] },
+  { titulo: "Conduta de Eliminações", opcoes: ["Fralda","Fralda+forrinho","Forrinho","Vai ao banheiro","Resid.ausente"] },
+  { titulo: "Eliminações Vesicais", opcoes: ["Diurese presente","Diurese diminuída","Diurese ausente","Incontinência urinária","Resid.ausente"] },
+  { titulo: "Eliminações Intestinais", opcoes: ["Evacuação presente","Evacuação ausente","Constipação","Diarreia","Resid.ausente"] },
+];
+
+/* ========= EXAME FÍSICO - CATEGORIAS (ADMIN) ========= */
+const exameCategorias = [
+  { titulo:"Nível de Consciência", opcoes:["Alerta","Lúcido","Sonolento","Letárgico","Incosciente","Parcialmente orientado","Presença de alucinações"] },
+  { titulo:"Cabeça", opcoes:["Limpo","Presença de sujidades","Dermatite seborreica","Alopecia","Pediculose","Foliculite"] },
+  { titulo:"Nariz", opcoes:["Integro","Congestão lado E","Congestão lado D","Desvio de septo E.","Desvio de septo D.","Epistaxe lado E","Epistaxe lado D","Presença de lesão"] },
+  { titulo:"Olhos", opcoes:["Acuidade visual presente","Acuidade visual ausente","Presença de secreção olho D","Presença de secreção olho E","Edema palpebral E.","Edema palpebral D.","Deficiente visual","Usa óculos","Conjuntivite","Pupilas isocoricas","Pupilas c/ midriase","pupilas c/ miose","Pupilas anisocoricas"] },
+  { titulo:"Boca", opcoes:["Mucosa oral Íntegra","Mucosa oral ressecada","Lesão em cavidade oral","Dentição preservada","Uso de protese dentaria parcial","Uso de protese dentaria total","Anadontia","Implante dentário","Herpes viral","Aftas","Labios rachados","Lingua acastanhada","Cáries","Hálito cetônico"] },
+  { titulo:"Dorso", opcoes:["Sem alteraçoes","Íntegro","Presença de leesão","Escoriação"] },
+  { titulo:"Orelhas", opcoes:["Deficiente auditivo","Higienizadas","Presença de secreção E.","Presença de secreção D.","Pavilão integro","Pavilão c sujidades","Pavilão limpo"] },
+  { titulo:"Pescoço", opcoes:["Pele integra","Mobilidade preservada","Mobilidade prejudicada","Rigidez de nuca","Presença de linfonodos palpaveis","Presença de edema","Nodulos palpaveis","Presença de ganglios","Dermatite"] },
+  { titulo:"Tórax", opcoes:["Torax simetrico","Torax assimetrico","Expansibilidade preservada","Expansibilidade diminuida","Uso de musculatura acessória","Dermatite"] },
+  { titulo:"Abdomên", opcoes:["Abdomên plano","Abdomên globoso","Abdomên distendido","Abdomen protuso","Abdomen flácido","Dor a palpação","Indolor a palpação"] },
+  { titulo:"Sistema Respiratório", opcoes:["Em uso de O2","Padrão resp. normal","Tosse produtiva","Tosse ñ produtiva","Eupneico","Dispneico","Síbilos","Roncos","Creptos","Atrito pleural"] },
+  { titulo:"Sistema cardiovascular", opcoes:["Taquicardia","Bradicardia","Ritmico","Arritmico","Presença de sopro"] },
+  { titulo:"Sistema Reprodutor", opcoes:["Genitalia externa íntegra","Genitalia externa com presença de lesões","Presença de secreção","Prurido genital","Odor genital","Higiene intima adequada","PeloS pubianos presentes","Presença de assadura","Presença de inguas"] },
+  { titulo:"MMII", opcoes:["Dermatite lado D","Dermatite lado E","Hidratado lado D","Hidratado lado E","Ressecado lado D","Ressecado lado E","Equimose lado D","Equimose lado E","Integro lado D","Integro lado E","Hematoma lado D","Hematoma lado E","Edema lado D","Edema lado E","Panturrilha empastada","Panturrilhas livres","Perfursão normal","Perfursão comprometida","Sensibilidade comprometida","Turgor normal","Turgor diminuido","Locomoção prejudicada","Locomoção c/ auxilio","Locomoção s/ auxilio","Deambula c/ andador","Deambula c/ bengala","Locomoção na cadeira"] },
+  { titulo:"MMSS", opcoes:["Dermatite lado D","Dermatite lado E","Hidratado lado D","Hidratado lado E","Ressecado lado D","Ressecado lado E","Equimose lado D","Equimose lado E","Integro lado D","Integro lado E","Hematoma lado D","Hematoma lado E","Edema lado D","Edema lado E"] },
+  { titulo:"Alimentação", opcoes:["V.O","SNE","GTT","Dieta liberada","Dieta restrita","Dieta pastosa","Dieta liquida","Dieta inteira","Boa aceitação","Apetite diminuido","Negando","Apetite aumentado","Inapetencia"] },
+  { titulo:"Ingesta Hidrica", opcoes:["Normal","Aumentada","Diminuida","Desidratado","Hidratado"] },
+  { titulo:"Eliminações Intestinais", opcoes:["Evacuação presente","Evacuação ausente","Constipação","Diarreia","Hematoquesia","Dor para evacuar"] },
+  { titulo:"Eliminações Urinárias", opcoes:["Oliguria","Poliúria","Anuria","Diurese presente","Diurese ausente"] },
+  { titulo:"Conduta de Eliminações", opcoes:["Fralda dia","Fralda noite","Forrinho dia","Forrinho noite","Vai ao banheiro"] },
+  { titulo:"Grau de Dependências", opcoes:["Independete","Parcialmente dependente","Totalmente dependente","Auxio para alimentação","Auxilio para higiene"] },
+  { titulo:"Diagnósticos Nanda", opcoes:["Risco de mucosa oral prejudicada","Dor aguda/crônica","Risco de suicidio","Padrão de sono prejudicado","Comunicação verbal prejudicada","Deglutição prejudicada","Enfrenamento ineficaz","Memória prejudicada","Confusão crônica","Confusão aguda","Ansiedade","Medo","Risco de infecção","Volume de liquido deficiente","Sobrepeso","Eliminação urinaria prejudicada","Constipação","Incontinencia urinaria de urgência","Retenção urinaria","Diarreia","Insônia","Ventilação espontânea prejudicada","Risco de aspiração","Risco de sangramento","Risco de resposta alérgica","Náuseas"] },
+];
+
+/* ========= CSV (simples) ========= */
+function tratarCSV(texto){
+  return texto.replace(/\r/g,"").split("\n")
+    .map(l => l.split(",").map(c => c.replace(/^"|"$/g,"").trim()));
+}
+
+/* ========= RENDER CATEGORIAS ========= */
+function renderCategorias(container, categorias, prefixo){
+  container.innerHTML = "";
+  categorias.forEach((cat, cIdx)=>{
+    const bloco = document.createElement("div");
+    bloco.className = "bloco-cat";
+
+    const cab = document.createElement("div");
+    cab.className = "cab";
+    cab.innerText = cat.titulo;
+
+    const conteudo = document.createElement("div");
+    conteudo.className = "conteudo";
+
+    const grid = document.createElement("div");
+    grid.className = "opcoes-2";
+
+    cat.opcoes.forEach((op, oIdx)=>{
+      const id = `${prefixo}_${cIdx}_${oIdx}`;
+
+      const lab = document.createElement("label");
+      lab.className = "opcao";
+      lab.setAttribute("for", id);
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.id = id;
+      cb.dataset.categoria = cat.titulo;
+      cb.dataset.valor = op;
+
+      const span = document.createElement("span");
+      span.innerText = op;
+
+      lab.appendChild(cb);
+      lab.appendChild(span);
+      grid.appendChild(lab);
+    });
+
+    conteudo.appendChild(grid);
+    bloco.appendChild(cab);
+    bloco.appendChild(conteudo);
+    container.appendChild(bloco);
+  });
+}
+
+/* ========= CARREGAR RESIDENTES ========= */
+fetch(urlCadastro)
+  .then(r => r.text())
+  .then(csv => {
+    const linhas = tratarCSV(csv).slice(1);
+    listaResidentes.innerHTML = "";
+
+    linhas.forEach(l=>{
+      const nome = (l[0] || "").trim();
+      const nasc = (l[1] || "").trim();
+      const status = (l[3] || "").trim();
+      const dep = (l[5] || "").trim();
+
+      if(!nome) return;
+      if(status.toLowerCase() !== "ativo") return;
+
+      const d = document.createElement("div");
+      d.className = "residente";
+      d.innerText = nome;
+      d.onclick = () => selecionar(nome, nasc, dep);
+      listaResidentes.appendChild(d);
+    });
+  })
+  .catch(err => {
+    console.error("Erro ao carregar residentes:", err);
+    listaResidentes.innerHTML = "<div style='color:#fff;'>Erro ao carregar residentes.</div>";
+  });
+
+/* ========= CARREGAR MEDICAMENTOS ========= */
+fetch(urlMedicamentos)
+  .then(r => r.text())
+  .then(csv => {
+    medicamentos = tratarCSV(csv).slice(1);
+  })
+  .catch(err => {
+    console.error("Erro ao carregar medicações:", err);
+    medicamentos = [];
+  });
+
+function selecionar(nome, nasc, dep){
+  residenteAtual = nome;
+  nomeResidente.innerText = nome;
+  infoResidente.innerText = "Nascimento: " + nasc + " | Dependência: " + dep;
+  ficha.style.display = "block";
+
+  aplicarPermissoes();
+
+  renderCategorias(evolucaoDividida, evolucaoCategorias, "evol");
+
+  if(isAdmin()){
+    renderCategorias(exameDividido, exameCategorias, "exame");
+  } else {
+    exameDividido.innerHTML = "";
+  }
+
+  carregarMedicacoes();
+  carregarCuidados();
+  atualizarSinaisVitais();
+}
+
+/* ========= MEDICAÇÕES ========= */
+function carregarMedicacoes(){
+  const data = dataSelecionada.value;
+  if(!data) return;
+
+  const partes = data.split("-");
+  const dataBR = partes[2] + "/" + partes[1] + "/" + partes[0];
+  dataTitulo.innerText = dataBR;
+
+  tabelaMedicacoes.innerHTML = "";
+
+  medicamentos.forEach(m=>{
+    if(m[0] === residenteAtual){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${m[1] || ""}</td>
+        <td>${m[2] || ""}</td>
+        <td>${m[3] || ""}</td>
+        <td>${m[4] || ""}</td>
+        <td>${m[5] || ""}</td>
+        <td>${dataBR}</td>
+        <td>${localStorage.getItem("usuarioLogado") || ""}</td>
+        <td style="text-align:center;">
+          <input type="checkbox" class="med-check"
+            data-med="${m[1] || ""} | Dose: ${m[2] || ""} | Horário: ${m[3] || ""} | Dias: ${m[4] || ""} | Via: ${m[5] || ""}">
+        </td>
+      `;
+      tabelaMedicacoes.appendChild(tr);
+    }
+  });
+}
+
+/* ========= CUIDADOS ========= */
+function carregarCuidados(){
+  const turno = turnoSelect.value;
+  listaCuidados.innerHTML = "";
+
+  if(!residenteAtual){
+    listaCuidados.innerHTML = "<i>Selecione um residente.</i>";
+    return;
+  }
+
+  if(!turno){
+    listaCuidados.innerHTML = "<i>Selecione o turno para exibir os cuidados.</i>";
+    return;
+  }
+
+  const lista = turno === "Noturno" ? cuidadosFixosNoturno : cuidadosFixosDiurno;
+
+  lista.forEach((item, idx)=>{
+    const id = `cuid_${idx}`;
+    const lab = document.createElement("label");
+    lab.className = "check-item";
+    lab.setAttribute("for", id);
+    lab.innerHTML = `<input id="${id}" type="checkbox"> <span>${item}</span>`;
+    listaCuidados.appendChild(lab);
+  });
+}
+
+/* ========= SINAIS VITAIS ========= */
+function atualizarSinaisVitais(){
+  const data = dataSelecionada.value;
+  if(!data) return;
+
+  const partes = data.split("-");
+  const dataBR = partes[2] + "/" + partes[1] + "/" + partes[0];
+
+  dataSinais.innerText = dataBR;
+  usuarioSinais.innerText = localStorage.getItem("usuarioLogado") || "";
+}
+
+/* ========= COLETAS ========= */
+function coletarCuidadosMarcados(){
+  return Array.from(document.querySelectorAll('#listaCuidados input[type="checkbox"]'))
+    .filter(cb => cb.checked)
+    .map(cb => {
+      const span = cb.parentElement.querySelector("span");
+      return span ? span.innerText.trim() : "Cuidado marcado";
+    });
+}
+
+function coletarMedicacoesMarcadas(){
+  return Array.from(document.querySelectorAll(".med-check"))
+    .filter(cb => cb.checked)
+    .map(cb => cb.dataset.med || "Medicação marcada");
+}
+
+function coletarCategoriasMarcadas(containerId){
+  const checks = Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]`))
+    .filter(cb => cb.checked);
+
+  const agrupado = {};
+  checks.forEach(cb => {
+    const cat = cb.dataset.categoria || "Outros";
+    const val = cb.dataset.valor || "";
+    if(!agrupado[cat]) agrupado[cat] = [];
+    agrupado[cat].push(val);
+  });
+
+  const out = {};
+  Object.keys(agrupado).forEach(k => out[k] = agrupado[k].join(", "));
+  return out;
+}
+
+function coletarExameMarcado(){
+  if(!isAdmin()) return [];
+  return Array.from(document.querySelectorAll('#exameDividido input[type="checkbox"]'))
+    .filter(cb => cb.checked)
+    .map(cb => `${cb.dataset.categoria || ""}: ${cb.dataset.valor || ""}`.trim())
+    .filter(x => x && x !== ":");
+}
+
+/* ========= LIMPAR ========= */
+function limparCampos(opts = { manterTurnoEData: true }){
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+  ["sv_pressao","sv_frequencia","sv_saturacao","sv_temperatura"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = "";
+  });
+
+  const campoObs = document.getElementById("intercorrenciasObservacoes");
+  if(campoObs) campoObs.value = "";
+
+  if(!opts.manterTurnoEData){
+    turnoSelect.selectedIndex = 0;
+    dataSelecionada.value = `${ano}-${mes}-${dia}`;
+    atualizarSinaisVitais();
+    carregarMedicacoes();
+    carregarCuidados();
+  }
+}
+
+/* ========= SALVAR ========= */
+async function salvar(){
+  try{
+    if(!residenteAtual){
+      alert("Selecione um residente antes de salvar.");
+      return;
+    }
+
+    if(!turnoSelect.value){
+      alert("Selecione o turno antes de salvar.");
+      return;
+    }
+
+    if(!dataSelecionada.value){
+      alert("Selecione a data antes de salvar.");
+      return;
+    }
+
+    const p = dataSelecionada.value.split("-");
+    const dataBR = `${p[2]}/${p[1]}/${p[0]}`;
+
+    const payload = {
+      data: dataBR,
+      residente: residenteAtual,
+      responsavel: localStorage.getItem("usuarioLogado") || "",
+      turno: turnoSelect.value,
+      sinais: {
+        pressao: (document.getElementById("sv_pressao")?.value || "").trim(),
+        frequencia: (document.getElementById("sv_frequencia")?.value || "").trim(),
+        saturacao: (document.getElementById("sv_saturacao")?.value || "").trim(),
+        temperatura: (document.getElementById("sv_temperatura")?.value || "").trim()
+      },
+      medicacoes: coletarMedicacoesMarcadas(),
+      cuidados: coletarCuidadosMarcados(),
+      evolucao: coletarCategoriasMarcadas("evolucaoDividida"),
+      intercorrenciasObservacoes: (document.getElementById("intercorrenciasObservacoes")?.value || "").trim(),
+      exameFisico: coletarExameMarcado()
+    };
+
+    await fetch(URL_WEBAPP, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    alert("✅ Salvo no Banco de Dados → Histórico!");
+    limparCampos({ manterTurnoEData: true });
+
+  } catch(err){
+    alert("❌ Erro ao salvar: " + err);
+    console.error(err);
+  }
+}
+
+/* ========= NAVEGAÇÃO ========= */
+function voltarHome(){
+  window.location = "painel.html";
+}
+
+function sair(){
+  localStorage.clear();
+  window.location = "entrada.html";
+}
+
+/* ========= INICIAL ========= */
+aplicarPermissoes();
+atualizarSinaisVitais();
+</script>
+
+</body>
+</html>

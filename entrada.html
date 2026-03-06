@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Login - Casa de Repouso Hinckel</title>
+
+<style>
+:root {
+  --marrom-escuro: #4E342E;
+  --marrom-medio: #6D4C41;
+  --marrom-claro: #D7CCC8;
+  --bege: #EFEBE9;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, var(--marrom-escuro), var(--marrom-medio));
+}
+
+.login-container {
+  background: var(--bege);
+  padding: 50px 40px;
+  border-radius: 18px;
+  width: 360px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 25px;
+  color: var(--marrom-escuro);
+}
+
+select, input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 18px;
+  border-radius: 8px;
+  border: 1px solid var(--marrom-claro);
+  font-size: 14px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 30px;
+  border: none;
+  background: var(--marrom-medio);
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--marrom-escuro);
+}
+
+#mensagem {
+  margin-top: 15px;
+  font-weight: 500;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-container">
+  <h1>Casa de Repouso Hinckel</h1>
+
+  <select id="usuario">
+    <option value="">Selecione o usuário</option>
+  </select>
+
+  <input type="password" id="senha" placeholder="Senha">
+
+  <button onclick="login()">Entrar</button>
+
+  <p id="mensagem"></p>
+</div>
+
+<script>
+
+// 🔗 COLE AQUI O LINK CSV DO SEU GOOGLE SHEETS
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSrNwbjq1JGVgG1m2UVW4QjZ-2t-cEWg2-nplBdTRIDuilcNW3rLquO2dXm0bEXqEp8T8vVpCN2Any1/pub?gid=0&single=true&output=csv";
+
+let dadosUsuarios = [];
+
+// Carrega usuários automaticamente
+fetch(url)
+  .then(response => response.text())
+  .then(csv => {
+
+    const linhas = csv.split("\n");
+
+    for (let i = 1; i < linhas.length; i++) {
+
+      const colunas = linhas[i].split(",");
+
+      const nome = colunas[0]?.trim();
+      const senha = colunas[1]?.trim();
+      const nivel = colunas[2]?.trim();
+
+      if (nome) {
+        dadosUsuarios.push({ nome, senha, nivel });
+
+        const option = document.createElement("option");
+        option.value = nome;
+        option.textContent = nome;
+        document.getElementById("usuario").appendChild(option);
+      }
+    }
+  });
+
+// Função login
+function login() {
+
+  const usuarioSelecionado = document.getElementById("usuario").value;
+  const senhaDigitada = document.getElementById("senha").value.trim();
+  const msg = document.getElementById("mensagem");
+
+  if (!usuarioSelecionado || !senhaDigitada) {
+    msg.style.color = "red";
+    msg.innerText = "Selecione o usuário e digite a senha.";
+    return;
+  }
+
+  const usuarioEncontrado = dadosUsuarios.find(u => 
+      u.nome === usuarioSelecionado && u.senha === senhaDigitada
+  );
+
+  if (usuarioEncontrado) {
+
+    localStorage.setItem("usuarioLogado", usuarioEncontrado.nome);
+    localStorage.setItem("nivelAcesso", usuarioEncontrado.nivel);
+
+    msg.style.color = "green";
+    msg.innerText = "Login realizado com sucesso!";
+
+    setTimeout(() => {
+      window.location.href = "painel.html";
+    }, 1000);
+
+  } else {
+    msg.style.color = "red";
+    msg.innerText = "Senha incorreta.";
+  }
+}
+
+</script>
+
+</body>
+</html>

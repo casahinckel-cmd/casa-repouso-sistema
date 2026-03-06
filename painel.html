@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Painel - Casa de Repouso Hinckel</title>
+
+<style>
+:root {
+  --marrom-escuro: #4E342E;
+  --marrom-medio: #6D4C41;
+  --marrom-claro: #D7CCC8;
+  --bege: #EFEBE9;
+  --destaque: #8D6E63;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, var(--marrom-escuro), var(--marrom-medio));
+  color: white;
+}
+
+/* ===== HEADER ===== */
+header {
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+  padding: 20px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+header h1 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.info {
+  text-align: right;
+  font-size: 14px;
+}
+
+.info span {
+  display: block;
+  opacity: 0.9;
+}
+
+/* ===== CONTEÚDO ===== */
+.main {
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.main h2 {
+  font-weight: 300;
+  margin-bottom: 50px;
+}
+
+/* ===== CARDS ===== */
+.cards {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: var(--bege);
+  color: var(--marrom-escuro);
+  width: 280px;
+  padding: 40px 30px;
+  border-radius: 18px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  background: var(--marrom-claro);
+}
+
+.card-icon {
+  font-size: 42px;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+.card p {
+  font-size: 14px;
+  color: var(--marrom-medio);
+}
+
+/* ===== BOTÃO SAIR ===== */
+.sair {
+  margin-top: 70px;
+}
+
+.btn-sair {
+  background: transparent;
+  border: 1px solid white;
+  padding: 10px 28px;
+  border-radius: 30px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-sair:hover {
+  background: white;
+  color: var(--marrom-escuro);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Casa de Repouso Hinckel</h1>
+  <div class="info">
+    <span>Usuário: <strong id="usuarioNome"></strong></span>
+    <span>Nível: <strong id="nivelNome"></strong></span>
+  </div>
+</header>
+
+<div class="main">
+
+  <h2>Painel Administrativo</h2>
+
+  <div class="cards">
+
+    <div class="card" onclick="irChecagem()">
+      <div class="card-icon">📋</div>
+      <h3>Checagem</h3>
+      <p>Controle diário dos residentes</p>
+    </div>
+
+    <div class="card" onclick="irPrancheta()">
+      <div class="card-icon">📝</div>
+      <h3>Prancheta</h3>
+      <p>Anotações e registros internos</p>
+    </div>
+
+    <div class="card" id="cardCadastro" onclick="irCadastro()" style="display:none;">
+      <div class="card-icon">👵</div>
+      <h3>Cadastro</h3>
+      <p>Gerenciamento completo de residentes</p>
+    </div>
+
+  </div>
+
+  <div class="sair">
+    <button class="btn-sair" onclick="sair()">Sair do Sistema</button>
+  </div>
+
+</div>
+
+<script>
+
+// 🔐 Verifica login
+const usuario = localStorage.getItem("usuarioLogado");
+const nivel = localStorage.getItem("nivelAcesso");
+
+if (!usuario || !nivel) {
+  window.location.href = "entrada.html";
+} else {
+
+  document.getElementById("usuarioNome").innerText = usuario;
+  document.getElementById("nivelNome").innerText = nivel;
+
+  // Apenas Administrador vê Cadastro
+  if (nivel === "Administrador") {
+    document.getElementById("cardCadastro").style.display = "block";
+  }
+}
+
+function irChecagem() {
+  window.location.href = "checagem.html";
+}
+
+function irPrancheta() {
+  window.location.href = "pranchet.html";
+}
+
+function irCadastro() {
+  window.location.href = "cadastro.html";
+}
+
+function sair() {
+  localStorage.clear();
+  window.location.href = "entrada.html";
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cadastros - Casa de Repouso Hinckel</title>
+
+<style>
+:root{
+  --marrom-escuro:#4E342E;
+  --marrom-medio:#6D4C41;
+  --bege:#EFEBE9;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  font-size:14px;
+  line-height:1.35;
+  display:flex;
+  background:var(--bege);
+  color:#222;
+}
+
+h2{ font-size:18px; margin:0; }
+h3{ font-size:16px; margin:0; }
+
+.sidebar{
+  width:280px;
+  background:var(--marrom-escuro);
+  color:#fff;
+  padding:20px;
+  height:100vh;
+  overflow-y:auto;
+}
+
+.sidebar h2{ margin-bottom:10px; }
+
+.residente{
+  padding:10px;
+  margin-bottom:8px;
+  background:var(--marrom-medio);
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.residente:hover{ background:#5D4037; }
+
+.residente small{
+  display:block;
+  margin-top:4px;
+  opacity:.95;
+}
+
+.top-buttons{
+  margin-top:20px;
+}
+
+.top-buttons button{
+  width:100%;
+  margin-bottom:10px;
+  background:#3E2723;
+}
+
+.main{
+  flex:1;
+  padding:24px;
+  overflow-y:auto;
+}
+
+.header-fixo{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:transparent;
+  padding-bottom:10px;
+}
+
+.header-card{
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+  border:1px solid rgba(0,0,0,.06);
+  padding:14px;
+}
+
+.header-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.header-ident{
+  min-width:240px;
+}
+
+.header-ident .nome{
+  font-size:20px;
+  font-weight:800;
+  margin:0 0 4px;
+  color:#2a1a17;
+}
+
+.header-ident .sub{
+  margin:0;
+  color:#5d5d5d;
+  font-size:13px;
+}
+
+.header-user{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:#f6f1ef;
+  border:1px solid #eadfda;
+  color:#3b2a26;
+  font-size:13px;
+}
+
+.badge b{ font-weight:800; }
+
+.header-actions{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.card{
+  background:#fff;
+  padding:18px;
+  margin-bottom:18px;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,.1);
+  overflow:hidden;
+}
+
+.titulo-secao{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  margin:-18px -18px 14px;
+  background:var(--marrom-medio);
+  color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.2);
+}
+
+.titulo-secao h3{ font-size:17px; }
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px 16px;
+}
+
+@media (max-width: 900px){
+  .form-grid{ grid-template-columns:1fr; }
+}
+
+.campo{
+  display:flex;
+  flex-direction:column;
+}
+
+.campo.full{
+  grid-column:1 / -1;
+}
+
+.campo label{
+  display:block;
+  font-size:12px;
+  color:#5a5a5a;
+  font-weight:800;
+  margin-bottom:6px;
+}
+
+input, select, textarea{
+  width:100%;
+  max-width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:13.5px;
+  font-family:Arial, sans-serif;
+  background:#fff;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+input[disabled],
+select[disabled],
+textarea[disabled]{
+  background:#f3f3f3;
+  color:#555;
+  cursor:not-allowed;
+}
+
+button{
+  padding:10px 12px;
+  background:var(--marrom-medio);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+button:hover{ background:var(--marrom-escuro); }
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.info-box{
+  background:#faf7f6;
+  border:1px solid #eee;
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:14px;
+  color:#4b3d39;
+}
+
+.status-msg{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:8px;
+  font-weight:700;
+  display:none;
+}
+
+.status-msg.ok{
+  display:block;
+  background:#edf7ed;
+  color:#1f5f2a;
+  border:1px solid #b7dfbb;
+}
+
+.status-msg.erro{
+  display:block;
+  background:#fdeeee;
+  color:#8a1f1f;
+  border:1px solid #efc0c0;
+}
+
+.vazio{
+  font-style:italic;
+  opacity:.9;
+  padding:8px 0;
+}
+
+/* MEDICAÇÕES */
+.actions-inline{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.btn-add-med{
+  background:#3E2723;
+  font-weight:700;
+}
+
+.btn-add-med:hover{
+  background:#2d1c19;
+}
+
+.meds-wrap{
+  overflow-x:auto;
+  border:1px solid #e7dddd;
+  border-radius:10px;
+}
+
+.meds-table{
+  width:100%;
+  min-width:1040px;
+  border-collapse:collapse;
+  background:#fff;
+}
+
+.meds-table th,
+.meds-table td{
+  border:1px solid #e7dddd;
+  padding:8px;
+  vertical-align:top;
+}
+
+.meds-table th{
+  background:#f6f1ef;
+  color:#3b2a26;
+  font-size:12px;
+  font-weight:800;
+  text-align:left;
+}
+
+.meds-table td input{
+  margin:0;
+  padding:9px;
+  border-radius:8px;
+}
+
+.col-acoes{
+  width:70px;
+  text-align:center;
+}
+
+.btn-remover-med{
+  background:#b44343;
+  padding:8px 10px;
+  min-width:42px;
+}
+
+.btn-remover-med:hover{
+  background:#933434;
+}
+
+.texto-ajuda{
+  margin:0 0 10px;
+  color:#5d5d5d;
+  font-size:12.5px;
+}
+
+.sem-medicacao{
+  text-align:center;
+  color:#6a5d59;
+  font-style:italic;
+  padding:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Cadastros</h2>
+  <div id="listaResidentes">
+    <div class="vazio">Carregando residentes...</div>
+  </div>
+
+  <div class="top-buttons">
+    <button onclick="novoCadastro()">➕ Novo Cadastro</button>
+    <button onclick="voltarHome()">⬅ Voltar Home</button>
+    <button onclick="sair()">🚪 Sair do Sistema</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="header-fixo">
+    <div class="header-card">
+      <div class="header-top">
+        <div class="header-ident">
+          <p class="nome" id="tituloPagina">Cadastro de Residentes</p>
+          <p class="sub" id="subtituloPagina">Selecione um residente para visualizar</p>
+        </div>
+
+        <div class="header-user">
+          <span class="badge">👤 <b>Usuário:</b> <span id="usuarioLogado"></span></span>
+          <span class="badge">🔐 <b>Nível:</b> <span id="nivelAcesso"></span></span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnEditar" onclick="habilitarEdicao()" disabled>✏️ Editar Cadastro</button>
+        <button id="btnSalvar" onclick="salvarCadastro()" disabled>💾 Salvar Cadastro</button>
+        <button id="btnLimpar" onclick="limparFormulario()" disabled>🧹 Limpar Campos</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="titulo-secao">
+      <h3>Informações do Residente</h3>
+    </div>
+
+    <div class="info-box" id="infoModo">
+      Os dados carregados ficam apenas para visualização. Clique em <b>Editar Cadastro</b> para liberar a edição.
+    </div>
+
+    <div class="form-grid">
+      <div class="campo">
+        <label for="residente">Residente</label>
+        <input type="text" id="residente" placeholder="Nome completo do residente">
+      </div>
+
+      <div class="campo">
+        <label for="dataNascimento">Data de nascimento</label>
+        <input type="text" id="dataNascimento" placeholder="Ex: 05/09/1928">
+      </div>
+
+      <div class="campo">
+        <label for="dataEntrada">Data de entrada</label>
+        <input type="text" id="dataEntrada" placeholder="Ex: 14/03/2022">
+      </div>
+
+      <div class="campo">
+        <label for="statusCadastro">Status do cadastro</label>
+        <select id="statusCadastro">
+          <option value="">Selecione</option>
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="grauDependencia">Grau de Dependência</label>
+        <select id="grauDependencia">
+          <option value="">Selecione</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+
+        </select>
+      </div>
+
+      <div class="campo full">
+        <label for="responsavelLegal">Responsável Legal</label>
+        <textarea id="responsavelLegal" placeholder="Informe o responsável legal"></textarea>
+      </div>
+
+      <div class="campo full">
+        <label for="telefoneResponsavel">Telefone do Responsável</label>
+        <textarea id="telefoneResponsavel" placeholder="Informe telefone(s) do responsável"></textarea>
+      </div>
+
+      <div class="campo full">
+        <label for="proibicaoEntrada">Proibição de entrada</label>
+        <textarea id="proibicaoEntrada" placeholder="Informe restrições ou proibições de entrada"></textarea>
+      </div>
+
+      <div class="campo full">
+        <label for="alergias">Alergias</label>
+        <textarea id="alergias" placeholder="Informe alergias do residente"></textarea>
+      </div>
+
+      <div class="campo full">
+        <label for="cirurgias">Cirurgias</label>
+        <textarea id="cirurgias" placeholder="Informe histórico de cirurgias"></textarea>
+      </div>
+
+      <div class="campo full">
+        <label for="internacoes">Internações</label>
+        <textarea id="internacoes" placeholder="Informe histórico de internações"></textarea>
+      </div>
+
+      <div class="campo full">
+        <label for="observacoes">Observações</label>
+        <textarea id="observacoes" placeholder="Observações gerais"></textarea>
+      </div>
+    </div>
+
+    <div id="mensagem" class="status-msg"></div>
+  </div>
+
+  <div class="card">
+    <div class="titulo-secao">
+      <h3>Medicações</h3>
+      <div class="actions-inline">
+        <button id="btnAdicionarMedicacao" class="btn-add-med" onclick="adicionarLinhaMedicacao()" disabled>＋ Adicionar Medicação</button>
+      </div>
+    </div>
+
+    <p class="texto-ajuda">
+      Preencha as medicações em formato de tabela. Clique no botão <b>＋ Adicionar Medicação</b> para inserir novas linhas.
+    </p>
+
+    <div class="meds-wrap">
+      <table class="meds-table">
+        <thead>
+          <tr>
+            <th>Medicação</th>
+            <th>Dose</th>
+            <th>Horário</th>
+            <th>Dias da Semana</th>
+            <th>Via</th>
+            <th>Receita Especial</th>
+            <th class="col-acoes">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="medicacoesBody">
+          <tr id="semMedicacoes">
+            <td colspan="7" class="sem-medicacao">Nenhuma medicação adicionada.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const URL_CADASTROS = "https://script.google.com/macros/s/AKfycbzTh8XOL6ny5vBlOLc-srukz6cjD6RMIIsRa0BRRcEDiXd5r-G4B7J06wx7JncI5oSnGw/exec";
+
+document.getElementById("usuarioLogado").innerText = localStorage.getItem("usuarioLogado") || "Não identificado";
+document.getElementById("nivelAcesso").innerText = localStorage.getItem("nivelAcesso") || "-";
+
+let residenteSelecionado = "";
+let modoEdicao = false;
+let modoNovo = false;
+
+const camposIds = [
+  "residente",
+  "dataNascimento",
+  "dataEntrada",
+  "statusCadastro",
+  "grauDependencia",
+  "responsavelLegal",
+  "telefoneResponsavel",
+  "proibicaoEntrada",
+  "alergias",
+  "cirurgias",
+  "internacoes",
+  "observacoes"
+];
+
+function mostrarMensagem(texto, tipo = "ok"){
+  const mensagem = document.getElementById("mensagem");
+  mensagem.className = "status-msg " + tipo;
+  mensagem.innerText = texto;
+}
+
+function limparMensagem(){
+  const mensagem = document.getElementById("mensagem");
+  mensagem.className = "status-msg";
+  mensagem.innerText = "";
+}
+
+function formatarData(valor){
+  const v = String(valor || "").trim();
+  if (!v) return "";
+
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) return v;
+
+  if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
+    const data = new Date(v);
+    if (!isNaN(data.getTime())) {
+      const d = String(data.getDate()).padStart(2, "0");
+      const m = String(data.getMonth() + 1).padStart(2, "0");
+      const a = data.getFullYear();
+      return `${d}/${m}/${a}`;
+    }
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    const [a, m, d] = v.split("-");
+    return `${d}/${m}/${a}`;
+  }
+
+  return v;
+}
+
+function setCamposMedicacaoHabilitados(habilitado){
+  document.getElementById("btnAdicionarMedicacao").disabled = !habilitado;
+
+  const rows = document.querySelectorAll(".med-row");
+  rows.forEach(row => {
+    row.querySelectorAll("input").forEach(inp => {
+      inp.disabled = !habilitado;
+    });
+
+    const btnRemover = row.querySelector(".btn-remover-med");
+    if(btnRemover){
+      btnRemover.disabled = !habilitado;
+    }
+  });
+}
+
+function setModoSomenteLeitura(){
+  modoEdicao = false;
+
+  camposIds.forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+
+  document.getElementById("btnSalvar").disabled = true;
+  document.getElementById("btnEditar").disabled = !residenteSelecionado;
+  document.getElementById("btnLimpar").disabled = true;
+
+  setCamposMedicacaoHabilitados(false);
+
+  document.getElementById("infoModo").innerHTML =
+    'Os dados carregados ficam apenas para visualização. Clique em <b>Editar Cadastro</b> para liberar a edição.';
+}
+
+function setModoEdicao(){
+  modoEdicao = true;
+
+  camposIds.forEach(id => {
+    document.getElementById(id).disabled = false;
+  });
+
+  document.getElementById("btnSalvar").disabled = false;
+  document.getElementById("btnEditar").disabled = true;
+  document.getElementById("btnLimpar").disabled = false;
+
+  setCamposMedicacaoHabilitados(true);
+
+  document.getElementById("infoModo").innerHTML =
+    'Modo de edição liberado. Altere os campos e clique em <b>Salvar Cadastro</b>.';
+}
+
+function normalizarGrau(valor){
+  const v = String(valor || "").trim().toLowerCase();
+  if (v === "1" || v === "grau 1") return "1";
+  if (v === "2" || v === "grau 2") return "2";
+  if (v === "3" || v === "grau 3") return "3";
+  return String(valor || "").trim();
+}
+
+function criarLinhaMedicacao(item = {}, habilitada = false){
+  const tr = document.createElement("tr");
+  tr.className = "med-row";
+
+  tr.innerHTML = `
+    <td><input type="text" class="med-medicacao" placeholder="Medicação" value="${escapeAttr(item.medicacao || item["Medicação"] || "")}" ${habilitada ? "" : "disabled"}></td>
+    <td><input type="text" class="med-dose" placeholder="Dose" value="${escapeAttr(item.dose || item["Dose"] || "")}" ${habilitada ? "" : "disabled"}></td>
+    <td><input type="text" class="med-horario" placeholder="Horário" value="${escapeAttr(item.horario || item["Horário"] || item["Horario"] || "")}" ${habilitada ? "" : "disabled"}></td>
+    <td><input type="text" class="med-dias" placeholder="Dias da semana" value="${escapeAttr(item.diasSemana || item["Dias da Semana"] || "")}" ${habilitada ? "" : "disabled"}></td>
+    <td><input type="text" class="med-via" placeholder="Via" value="${escapeAttr(item.via || item["Via"] || "")}" ${habilitada ? "" : "disabled"}></td>
+    <td><input type="text" class="med-receita" placeholder="Receita especial" value="${escapeAttr(item.receitaEspecial || item["Receita Especial"] || "")}" ${habilitada ? "" : "disabled"}></td>
+    <td class="col-acoes"><button type="button" class="btn-remover-med" onclick="removerLinhaMedicacao(this)" ${habilitada ? "" : "disabled"}>🗑</button></td>
+  `;
+
+  return tr;
+}
+
+function escapeAttr(valor){
+  return String(valor || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function atualizarEstadoTabelaMedicacoes(){
+  const body = document.getElementById("medicacoesBody");
+  const sem = document.getElementById("semMedicacoes");
+  const linhas = body.querySelectorAll(".med-row");
+
+  if(linhas.length === 0){
+    if(!sem){
+      const tr = document.createElement("tr");
+      tr.id = "semMedicacoes";
+      tr.innerHTML = '<td colspan="7" class="sem-medicacao">Nenhuma medicação adicionada.</td>';
+      body.appendChild(tr);
+    }
+  } else if(sem){
+    sem.remove();
+  }
+}
+
+function adicionarLinhaMedicacao(item = null){
+  if(!modoEdicao){
+    mostrarMensagem("A edição precisa estar habilitada para adicionar medicações.", "erro");
+    return;
+  }
+
+  const body = document.getElementById("medicacoesBody");
+  const linha = criarLinhaMedicacao(item || {}, true);
+
+  const sem = document.getElementById("semMedicacoes");
+  if(sem) sem.remove();
+
+  body.appendChild(linha);
+}
+
+function removerLinhaMedicacao(botao){
+  if(!modoEdicao){
+    mostrarMensagem("A edição precisa estar habilitada para remover medicações.", "erro");
+    return;
+  }
+
+  const tr = botao.closest("tr");
+  if(tr) tr.remove();
+  atualizarEstadoTabelaMedicacoes();
+}
+
+function limparTabelaMedicacoes(){
+  const body = document.getElementById("medicacoesBody");
+  body.innerHTML = `
+    <tr id="semMedicacoes">
+      <td colspan="7" class="sem-medicacao">Nenhuma medicação adicionada.</td>
+    </tr>
+  `;
+}
+
+function coletarMedicacoes(){
+  const linhas = Array.from(document.querySelectorAll(".med-row"));
+
+  return linhas.map(linha => ({
+    "Medicação": linha.querySelector(".med-medicacao")?.value.trim() || "",
+    "Dose": linha.querySelector(".med-dose")?.value.trim() || "",
+    "Horário": linha.querySelector(".med-horario")?.value.trim() || "",
+    "Dias da Semana": linha.querySelector(".med-dias")?.value.trim() || "",
+    "Via": linha.querySelector(".med-via")?.value.trim() || "",
+    "Receita Especial": linha.querySelector(".med-receita")?.value.trim() || ""
+  })).filter(item =>
+    item["Medicação"] ||
+    item["Dose"] ||
+    item["Horário"] ||
+    item["Dias da Semana"] ||
+    item["Via"] ||
+    item["Receita Especial"]
+  );
+}
+
+function preencherTabelaMedicacoes(lista){
+  limparTabelaMedicacoes();
+
+  if(!Array.isArray(lista) || !lista.length){
+    atualizarEstadoTabelaMedicacoes();
+    setCamposMedicacaoHabilitados(modoEdicao);
+    return;
+  }
+
+  const body = document.getElementById("medicacoesBody");
+  const sem = document.getElementById("semMedicacoes");
+  if(sem) sem.remove();
+
+  lista.forEach(item => {
+    body.appendChild(criarLinhaMedicacao(item, modoEdicao));
+  });
+
+  atualizarEstadoTabelaMedicacoes();
+}
+
+function getPayloadFormulario(){
+  return {
+    "Residente": document.getElementById("residente").value.trim(),
+    "Data de nascimento": document.getElementById("dataNascimento").value.trim(),
+    "Data de entrada": document.getElementById("dataEntrada").value.trim(),
+    "Status do cadastro": document.getElementById("statusCadastro").value.trim(),
+    "Responsável Legal": document.getElementById("responsavelLegal").value.trim(),
+    "Grau de Dependência": normalizarGrau(document.getElementById("grauDependencia").value.trim()),
+    "Telefone do Responsável": document.getElementById("telefoneResponsavel").value.trim(),
+    "Proibição de entrada": document.getElementById("proibicaoEntrada").value.trim(),
+    "Alergias": document.getElementById("alergias").value.trim(),
+    "Cirurgias": document.getElementById("cirurgias").value.trim(),
+    "Internações": document.getElementById("internacoes").value.trim(),
+    "Observações": document.getElementById("observacoes").value.trim(),
+    "Medicacoes": coletarMedicacoes()
+  };
+}
+
+function preencherFormulario(item){
+  document.getElementById("residente").value = item["Residente"] || "";
+  document.getElementById("dataNascimento").value = formatarData(item["Data de nascimento"] || "");
+  document.getElementById("dataEntrada").value = formatarData(item["Data de entrada"] || "");
+  document.getElementById("statusCadastro").value = item["Status do cadastro"] || "";
+  document.getElementById("grauDependencia").value = normalizarGrau(item["Grau de Dependência"] || "");
+  document.getElementById("responsavelLegal").value = item["Responsável Legal"] || "";
+  document.getElementById("telefoneResponsavel").value = item["Telefone do Responsável"] || "";
+  document.getElementById("proibicaoEntrada").value = item["Proibição de entrada"] || "";
+  document.getElementById("alergias").value = item["Alergias"] || "";
+  document.getElementById("cirurgias").value = item["Cirurgias"] || "";
+  document.getElementById("internacoes").value = item["Internações"] || "";
+  document.getElementById("observacoes").value = item["Observações"] || "";
+
+  const meds =
+    item["Medicacoes"] ||
+    item["Medicações"] ||
+    item["medicacoes"] ||
+    item["medicações"] ||
+    [];
+
+  preencherTabelaMedicacoes(meds);
+}
+
+function limparFormulario(forcar = false){
+  if(!forcar && !modoEdicao){
+    mostrarMensagem("A edição precisa estar habilitada para limpar os campos.", "erro");
+    return;
+  }
+
+  camposIds.forEach(id => {
+    document.getElementById(id).value = "";
+  });
+
+  limparTabelaMedicacoes();
+
+  if(forcar){
+    residenteSelecionado = "";
+    modoNovo = false;
+    modoEdicao = false;
+
+    document.getElementById("tituloPagina").innerText = "Cadastro de Residentes";
+    document.getElementById("subtituloPagina").innerText = "Selecione um residente para visualizar";
+
+    limparMensagem();
+    setModoSomenteLeitura();
+  }
+}
+
+function novoCadastro(){
+  limparFormulario(true);
+  modoNovo = true;
+
+  document.getElementById("tituloPagina").innerText = "Novo Cadastro";
+  document.getElementById("subtituloPagina").innerText = "Preencha os dados do novo residente";
+
+  setModoEdicao();
+  document.getElementById("btnEditar").disabled = true;
+  document.getElementById("residente").focus();
+}
+
+async function carregarListaResidentes(){
+  try{
+    const lista = document.getElementById("listaResidentes");
+    lista.innerHTML = '<div class="vazio">Carregando residentes...</div>';
+
+    const resp = await fetch(URL_CADASTROS + "?action=list");
+    const data = await resp.json();
+
+    if(!data.ok){
+      throw new Error(data.error || "Erro ao listar residentes.");
+    }
+
+    const items = Array.isArray(data.items) ? data.items : [];
+
+    if(!items.length){
+      lista.innerHTML = '<div class="vazio">Nenhum cadastro encontrado.</div>';
+      return;
+    }
+
+    lista.innerHTML = "";
+
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "residente";
+      div.innerHTML = `
+        <div>${item.nome || ""}</div>
+        <small>Status: ${item.status || "-"}</small>
+      `;
+      div.onclick = () => carregarCadastro(item.nome || "");
+      lista.appendChild(div);
+    });
+
+  } catch(err){
+    document.getElementById("listaResidentes").innerHTML = '<div class="vazio">Erro ao carregar residentes.</div>';
+    mostrarMensagem("Erro ao carregar lista: " + err.message, "erro");
+  }
+}
+
+async function carregarCadastro(nome){
+  try{
+    limparMensagem();
+
+    const resp = await fetch(URL_CADASTROS + "?action=get&nome=" + encodeURIComponent(nome));
+    const data = await resp.json();
+
+    if(!data.ok){
+      throw new Error(data.error || "Erro ao buscar cadastro.");
+    }
+
+    if(!data.item){
+      mostrarMensagem("Cadastro não encontrado.", "erro");
+      return;
+    }
+
+    residenteSelecionado = nome;
+    modoNovo = false;
+
+    preencherFormulario(data.item);
+
+    document.getElementById("tituloPagina").innerText = data.item["Residente"] || "Cadastro";
+    document.getElementById("subtituloPagina").innerText = "Cadastro carregado para visualização";
+
+    setModoSomenteLeitura();
+    mostrarMensagem("Cadastro carregado com sucesso.", "ok");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+  } catch(err){
+    mostrarMensagem("Erro ao carregar cadastro: " + err.message, "erro");
+  }
+}
+
+function habilitarEdicao(){
+  if(!residenteSelecionado && !modoNovo){
+    mostrarMensagem("Selecione um cadastro primeiro.", "erro");
+    return;
+  }
+  setModoEdicao();
+}
+
+async function salvarCadastro(){
+  try{
+    limparMensagem();
+
+    if(!modoEdicao){
+      mostrarMensagem("Clique em Editar Cadastro antes de salvar.", "erro");
+      return;
+    }
+
+    const payload = getPayloadFormulario();
+
+    if(!payload["Residente"]){
+      mostrarMensagem("Informe o nome do residente.", "erro");
+      return;
+    }
+
+    if(!payload["Status do cadastro"]){
+      mostrarMensagem("Selecione o status do cadastro.", "erro");
+      return;
+    }
+
+    const resp = await fetch(URL_CADASTROS, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        action: "save",
+        payload: payload
+      })
+    });
+
+    const data = await resp.json();
+
+    if(!data.ok){
+      throw new Error(data.error || "Erro ao salvar cadastro.");
+    }
+
+    residenteSelecionado = payload["Residente"];
+    modoNovo = false;
+
+    document.getElementById("tituloPagina").innerText = payload["Residente"];
+    document.getElementById("subtituloPagina").innerText =
+      data.mode === "updated" ? "Cadastro atualizado com sucesso" : "Novo cadastro salvo com sucesso";
+
+    setModoSomenteLeitura();
+    mostrarMensagem(data.message || "Cadastro salvo com sucesso.", "ok");
+
+    await carregarListaResidentes();
+
+  } catch(err){
+    mostrarMensagem("Erro ao salvar cadastro: " + err.message, "erro");
+  }
+}
+
+function voltarHome(){
+  window.location = "painel.html";
+}
+
+function sair(){
+  localStorage.clear();
+  window.location = "entrada.html";
+}
+
+limparFormulario(true);
+carregarListaResidentes();
+</script>
+
+</body>
+</html>
